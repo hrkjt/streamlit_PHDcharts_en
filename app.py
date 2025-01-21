@@ -968,7 +968,7 @@ if submit_button:
   if not filter_pass0 and not filter_pass1 and not filter_pass2 and not filter_pass3:
     st.write('一つ以上のチェックボックスを選択してください')
   else:
-    st.write('選択された治療期間（治療前スキャン〜治療後スキャンの間隔）：', min_value, "〜", max_value, "か月")
+    st.write('選択された治療期間（治療前スキャン〜治療後スキャンの間隔）：', str(min_value), "〜", str(max_value), "か月")
     
     filtered_df = df_tx_pre_post[df_tx_pre_post['治療ステータス'] == '治療後']
         # スライダーで選択された範囲でデータをフィルタリング
