@@ -718,6 +718,7 @@ def graham_hc(df, border=False, x_limit=False):
   df_fig = df_fig.drop_duplicates('ダミーID', keep='last')
 
   line_colors = ['blue', 'green', 'black', 'red', 'purple']
+  line_color = 'black'
   #line_colors = ['rgb(150,150,150)', 'rgb(100,100,100)', 'rgb(50,50,50)', 'black']
   dashes = ['solid', 'dashdot', 'dash', 'dot'] #'longdash', 'longdashdot'
 
