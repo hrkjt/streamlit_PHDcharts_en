@@ -718,7 +718,6 @@ def graham_hc(df, border=False, x_limit=False):
   df_fig = df_fig.drop_duplicates('ダミーID', keep='last')
 
   line_colors = ['blue', 'green', 'black', 'red', 'purple']
-  line_color = 'black'
   #line_colors = ['rgb(150,150,150)', 'rgb(100,100,100)', 'rgb(50,50,50)', 'black']
   dashes = ['solid', 'dashdot', 'dash', 'dot'] #'longdash', 'longdashdot'
 
@@ -750,6 +749,8 @@ def graham_hc(df, border=False, x_limit=False):
     x_rage_maxes[age] = 0
 
     #for level, line_color, dash in zip(levels, line_colors, dashes):
+    line_color = 'black'
+    dash = 'solid'
     #df_temp_temp = df_temp[df_temp[severities] == level]
     temp_members = df_temp['ダミーID'].unique()
     df_pre_temp = df_pre[df_pre['ダミーID'].isin(temp_members)]
@@ -828,16 +829,6 @@ def graham_hc(df, border=False, x_limit=False):
                   )
 
     #print(fig.print_grid())  #グリッド構造を確認
-    #fig.append_trace(d, 1, i)
-    fig.add_trace(d, row=1, col=i)
-
-    d = go.Scatter(mode='lines',
-                    x=[0, 25],
-                    y=[upper_border]*2,
-                    line=dict(color = 'black', dash='dot'),
-                    showlegend=False,
-                    #name='CVAI=5%'
-                    )
     #fig.append_trace(d, 1, i)
     fig.add_trace(d, row=1, col=i)
 
