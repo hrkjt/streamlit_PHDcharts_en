@@ -802,31 +802,31 @@ def graham_hc(df, border=False, x_limit=False):
     #y_sd.append(df_temp_temp['最終'+parameter].std())
     y_sd.append(df_temp['頭囲'].std())
 
-    if i == 1:
-      d = go.Scatter(x=x, y=y,
-                  error_x=dict(type='data', array=x_sd, visible=True),
-                  error_y=dict(type='data', array=y_sd, visible=True),
-                  mode='markers+lines',
-                  #line=dict(color = line_color),
-                  line=dict(color = line_color, dash = dash),
-                  #ids=[level, level],
-                  #name=age + level
-                  name = level,
-                  legendgroup=age)
-                  #legendgroup=level)
-    else:
-      d = go.Scatter(x=x, y=y,
-                  error_x=dict(type='data', array=x_sd, visible=True),
-                  error_y=dict(type='data', array=y_sd, visible=True),
-                  mode='markers+lines',
-                  #line=dict(color = line_color),
-                  line=dict(color = line_color, dash = dash),
-                  showlegend=False,  #ここが違う
-                  #ids=[level, level],
-                  #name=age + level
-                  #name = level,
-                  #legendgroup=age
-                  )
+    # if i == 1:
+    #   d = go.Scatter(x=x, y=y,
+    #               error_x=dict(type='data', array=x_sd, visible=True),
+    #               error_y=dict(type='data', array=y_sd, visible=True),
+    #               mode='markers+lines',
+    #               #line=dict(color = line_color),
+    #               line=dict(color = line_color, dash = dash),
+    #               #ids=[level, level],
+    #               #name=age + level
+    #               #name = level,
+    #               legendgroup=age)
+    #               #legendgroup=level)
+    # else:
+    d = go.Scatter(x=x, y=y,
+                error_x=dict(type='data', array=x_sd, visible=True),
+                error_y=dict(type='data', array=y_sd, visible=True),
+                mode='markers+lines',
+                #line=dict(color = line_color),
+                line=dict(color = line_color, dash = dash),
+                showlegend=False,  #ここが違う
+                #ids=[level, level],
+                #name=age + level
+                #name = level,
+                #legendgroup=age
+                )
 
     #print(fig.print_grid())  #グリッド構造を確認
     #fig.append_trace(d, 1, i)
