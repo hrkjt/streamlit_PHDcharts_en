@@ -750,7 +750,7 @@ def graham_hc(df, border=False, x_limit=False):
 
     #for level, line_color, dash in zip(levels, line_colors, dashes):
     #df_temp_temp = df_temp[df_temp[severities] == level]
-    temp_members = df_temp_temp['ダミーID'].unique()
+    temp_members = df_temp['ダミーID'].unique()
     df_pre_temp = df_pre[df_pre['ダミーID'].isin(temp_members)]
 
     x, x_sd, y, y_sd = [], [], [], []
@@ -758,7 +758,7 @@ def graham_hc(df, border=False, x_limit=False):
     mean0 = df_pre_temp['月齢'].mean()
     x.append(mean0)
 
-    mean1 = df_temp_temp['月齢'].mean()
+    mean1 = df_temp['月齢'].mean()
     x.append(mean1)
 
     sd0 = df_pre_temp['月齢'].std()
@@ -770,7 +770,7 @@ def graham_hc(df, border=False, x_limit=False):
     if min > mean0 - sd0:
       min = mean0 - sd0*1.1
 
-    sd = df_temp_temp['月齢'].std()
+    sd = df_temp['月齢'].std()
     x_sd.append(sd)
 
     if max_sd1 < sd:
@@ -794,11 +794,11 @@ def graham_hc(df, border=False, x_limit=False):
     #y.append(df_pre_temp['治療前'+parameter].mean())
     y.append(df_pre_temp['頭囲'].mean())
     #y.append(df_temp_temp['最終'+parameter].mean())
-    y.append(df_temp_temp['頭囲'].mean())
+    y.append(df_temp['頭囲'].mean())
     #y_sd.append(df_pre_temp['治療前'+parameter].std())
     y_sd.append(df_pre_temp['頭囲'].std())
     #y_sd.append(df_temp_temp['最終'+parameter].std())
-    y_sd.append(df_temp_temp['頭囲'].std())
+    y_sd.append(df_temp['頭囲'].std())
 
     if i == 1:
       d = go.Scatter(x=x, y=y,
