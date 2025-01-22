@@ -835,7 +835,7 @@ def graham_hc(df, border=False, x_limit=False):
   #print(range_max)
 
   #表示範囲の設定
-  min, max = 350, 550
+  min, max = 380, 480
 
   premargin = 0.5
   if max_sd0 > 0.5:
@@ -1152,9 +1152,9 @@ st.write('')
 st.write('頭囲の治療前後の変化（1か月以上の治療）')
 graham_hc(df_table)
 
-result = make_table('頭囲', df_table)
+#result = make_table('頭囲', df_table)
 #st.table(result)
-st.dataframe(result, width=800)
+#st.dataframe(result, width=800)
 st.markdown("---")
 
 #df_vis = takamatsu(df_tx)
@@ -1307,8 +1307,8 @@ if submit_button:
       st.write('')
       st.write('頭囲の治療前後の変化　', str(count), '人')
       graham_hc(filtered_df_tx_pre_post, x_limit=max_value)
-      result = make_table(parameter, filtered_df_tx_pre_post)
-      st.dataframe(result, width=800)
+      #result = make_table(parameter, filtered_df_tx_pre_post)
+      #st.dataframe(result, width=800)
       st.markdown("---")
 
       if filter_pass0:
@@ -1318,8 +1318,8 @@ if submit_button:
         st.write('')
         st.write('頭囲の治療前後の変化(アイメット)　', str(count), '人')
         graham_hc(filtered_df_helmet, x_limit=max_value)
-        result = make_table('頭囲', filtered_df_helmet)
-        st.dataframe(result, width=800)
+        #result = make_table('頭囲', filtered_df_helmet)
+        #st.dataframe(result, width=800)
         st.markdown("---")
 
       if filter_pass1:
@@ -1329,8 +1329,8 @@ if submit_button:
         st.write('')
         st.write('頭囲の治療前後の変化(クルム)　', str(count), '人')
         graham_hc(filtered_df_helmet, x_limit=max_value)
-        result = make_table('頭囲', filtered_df_helmet)
-        st.dataframe(result, width=800)
+        #result = make_table('頭囲', filtered_df_helmet)
+        #st.dataframe(result, width=800)
         st.markdown("---")
 
       if filter_pass2:
@@ -1340,8 +1340,8 @@ if submit_button:
         st.write('')
         st.write('頭囲の治療前後の変化(クルムフィット)　', str(count), '人')
         graham_hc(filtered_df_helmet, x_limit=max_value)
-        result = make_table('頭囲', filtered_df_helmet)
-        st.dataframe(result, width=800)
+        #result = make_table('頭囲', filtered_df_helmet)
+        #st.dataframe(result, width=800)
         st.markdown("---")
     
     if filter_pass3:
@@ -1365,9 +1365,9 @@ if submit_button:
       line_plot('頭囲', filtered_df_co)
 
       graham_hc(filtered_df_co)
-      result = make_table('頭囲', filtered_df_co, co = True)
+      #result = make_table('頭囲', filtered_df_co, co = True)
       #st.table(result)
-      st.dataframe(result, width=800)
+      #st.dataframe(result, width=800)
       st.markdown("---")
 
     #df_vis = takamatsu(filtered_df_tx_pre_post)
