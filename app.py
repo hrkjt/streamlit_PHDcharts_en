@@ -684,6 +684,232 @@ def graham(df, parameter, border=False, x_limit=False):
   #return(fig)
   st.plotly_chart(fig)
 
+def graham_hc(df, border=False, x_limit=False):
+  fig = make_subplots(
+      rows=1, cols=6,
+      # 初めに各グラフのタイトルを設定
+      subplot_titles=('-3', '4', '5', '6', '7', '8-'),
+      shared_yaxes=True
+  )
+
+  df_fig = df.copy()
+
+  df_age = pd.DataFrame()
+  
+  df_young = df_fig[df_fig['治療前月齢'] < 4]
+  df_young['治療前月齢'] = '-3'
+
+  df_age = pd.concat([df_age, df_young])
+
+  for i in range(4, 8):
+    df_temp = df_fig[(df_fig['治療前月齢'] >= i) & (df_fig['治療前月齢'] < i+1)]
+    df_temp['治療前月齢'] = str(i)
+    df_age = pd.concat([df_age, df_temp])
+
+  df_old = df_fig[df_fig['治療前月齢'] >= 8]
+  df_old['治療前月齢'] = '8-'
+  
+  df_age = pd.concat([df_age, df_old])
+
+  df_fig = df_age.copy()
+
+  df_pre = df_fig[df_fig['治療ステータス'] == '治療前']
+  df_fig = df_fig.sort_values('月齢')  #不要？
+  df_fig = df_fig.drop_duplicates('ダミーID', keep='last')
+
+  line_colors = ['blue', 'green', 'black', 'red', 'purple']
+  #line_colors = ['rgb(150,150,150)', 'rgb(100,100,100)', 'rgb(50,50,50)', 'black']
+  dashes = ['solid', 'dashdot', 'dash', 'dot'] #'longdash', 'longdashdot'
+
+  import math
+  ages = ['-3', '4', '5', '6', '7', '8-']
+
+  max_sd0, max_sd1 = 0, 0
+
+  range_max = 0
+
+  x_rage_mins = {}
+  x_rage_maxes = {}
+
+  for i, age in enumerate(ages, 1):
+    if i > 6:  # 最大6列まで
+      break
+      
+    df_temp = df_fig[df_fig['治療前月齢'] == age]
+    #df_temp = df_fig[(df_fig['治療前月齢'] >= age) & (df_fig['治療前月齢'] < age+1)]
+    df_pre_min = df_pre[df_pre['治療前月齢'] == age]
+    #df_pre_min = df_pre[(df_pre['治療前月齢'] >= age) & (df_pre['治療前月齢'] < age+1)]
+
+    #min = df_pre_min['月齢'].min()
+    min = 20
+    #max = df_temp['月齢'].max()
+    max = 0
+
+    x_rage_mins[age] = 20
+    x_rage_maxes[age] = 0
+
+    #for level, line_color, dash in zip(levels, line_colors, dashes):
+    #df_temp_temp = df_temp[df_temp[severities] == level]
+    temp_members = df_temp_temp['ダミーID'].unique()
+    df_pre_temp = df_pre[df_pre['ダミーID'].isin(temp_members)]
+
+    x, x_sd, y, y_sd = [], [], [], []
+
+    mean0 = df_pre_temp['月齢'].mean()
+    x.append(mean0)
+
+    mean1 = df_temp_temp['月齢'].mean()
+    x.append(mean1)
+
+    sd0 = df_pre_temp['月齢'].std()
+    x_sd.append(sd0)
+
+    if max_sd0 < sd0:
+      max_sd0 = sd0
+
+    if min > mean0 - sd0:
+      min = mean0 - sd0*1.1
+
+    sd = df_temp_temp['月齢'].std()
+    x_sd.append(sd)
+
+    if max_sd1 < sd:
+      max_sd1 = sd
+
+    if max < mean1 + sd:
+        #max = mean1 + sd*1.1 + sd0*1.1
+        max = mean1 + sd*1.1
+
+    if x_rage_mins[age] > min:
+      x_rage_mins[age] = min
+    
+    if x_rage_maxes[age] < max:
+      x_rage_maxes[age] = max
+
+    #月齢の幅
+    range_age = max - min
+    if range_max < range_age:
+      range_max = range_age
+
+    #y.append(df_pre_temp['治療前'+parameter].mean())
+    y.append(df_pre_temp['頭囲'].mean())
+    #y.append(df_temp_temp['最終'+parameter].mean())
+    y.append(df_temp_temp['頭囲'].mean())
+    #y_sd.append(df_pre_temp['治療前'+parameter].std())
+    y_sd.append(df_pre_temp['頭囲'].std())
+    #y_sd.append(df_temp_temp['最終'+parameter].std())
+    y_sd.append(df_temp_temp['頭囲'].std())
+
+    if i == 1:
+      d = go.Scatter(x=x, y=y,
+                  error_x=dict(type='data', array=x_sd, visible=True),
+                  error_y=dict(type='data', array=y_sd, visible=True),
+                  mode='markers+lines',
+                  #line=dict(color = line_color),
+                  line=dict(color = line_color, dash = dash),
+                  #ids=[level, level],
+                  #name=age + level
+                  name = level,
+                  legendgroup=age)
+                  #legendgroup=level)
+    else:
+      d = go.Scatter(x=x, y=y,
+                  error_x=dict(type='data', array=x_sd, visible=True),
+                  error_y=dict(type='data', array=y_sd, visible=True),
+                  mode='markers+lines',
+                  #line=dict(color = line_color),
+                  line=dict(color = line_color, dash = dash),
+                  showlegend=False,  #ここが違う
+                  #ids=[level, level],
+                  #name=age + level
+                  #name = level,
+                  #legendgroup=age
+                  )
+
+    #print(fig.print_grid())  #グリッド構造を確認
+    #fig.append_trace(d, 1, i)
+    fig.add_trace(d, row=1, col=i)
+
+    d = go.Scatter(mode='lines',
+                    x=[0, 25],
+                    y=[upper_border]*2,
+                    line=dict(color = 'black', dash='dot'),
+                    showlegend=False,
+                    #name='CVAI=5%'
+                    )
+    #fig.append_trace(d, 1, i)
+    fig.add_trace(d, row=1, col=i)
+
+  #print(range_max)
+
+  #表示範囲の設定
+  min, max = 350, 550
+
+  premargin = 0.5
+  if max_sd0 > 0.5:
+    premargin = max_sd0*1.1
+
+  range_max = 0
+
+  for age in ages:
+    range_age = x_rage_maxes[age] - x_rage_mins[age]
+    if range_max < range_age:
+      range_max = range_age
+
+  if x_limit:
+    layout = go.Layout(width=1600, height=900,
+                      title='Change in head circumference on age groups',
+                      #paper_bgcolor='white',
+                      #xaxis=dict(title='age', range=[2-premargin, 1.5+range_max]), 
+                      xaxis=dict(title='age', range=[3, 3 + x_limit+1]),
+                      #xaxis2=dict(title='age', range=[4-premargin, 3.5+range_max]),
+                      xaxis2=dict(title='age', range=[4, 4 + x_limit+1]),
+                      #xaxis3=dict(title='age', range=[5-premargin, 4.5+range_max]),
+                      xaxis3=dict(title='age', range=[5, 5 + x_limit+1]),
+                      #xaxis4=dict(title='age', range=[6-premargin, 5.5+range_max]),
+                      xaxis4=dict(title='age', range=[6, 6 + x_limit+1]),
+                      #xaxis5=dict(title='age', range=[7-premargin, 6.5+range_max]),
+                      xaxis5=dict(title='age', range=[7, 7 + x_limit+1]),
+                      #xaxis6=dict(title='age', range=[8-premargin, 7.5+range_max]),
+                      xaxis6=dict(title='age', range=[8, 8 + x_limit+1]),
+                      yaxis=dict(title='Mean '+parameter_name, range=[min, max]),
+                      yaxis2=dict(range=[min, max]),
+                      yaxis3=dict(range=[min, max]),
+                      yaxis4=dict(range=[min, max]),
+                      yaxis5=dict(range=[min, max]),
+                      yaxis6=dict(range=[min, max]))
+  else:
+    layout = go.Layout(width=1600, height=900,
+                      title='Change in head circumference on age groups',
+                      #paper_bgcolor='white',
+                      #xaxis=dict(title='age', range=[2-premargin, 1.5+range_max]), 
+                      xaxis=dict(title='age', range=[x_rage_mins['-3'], x_rage_mins['-3'] + range_max]),
+                      #xaxis2=dict(title='age', range=[4-premargin, 3.5+range_max]),
+                      xaxis2=dict(title='age', range=[x_rage_mins['4'], x_rage_mins['4'] + range_max]),
+                      #xaxis3=dict(title='age', range=[5-premargin, 4.5+range_max]),
+                      xaxis3=dict(title='age', range=[x_rage_mins['5'], x_rage_mins['5'] + range_max]),
+                      #xaxis4=dict(title='age', range=[6-premargin, 5.5+range_max]),
+                      xaxis4=dict(title='age', range=[x_rage_mins['6'], x_rage_mins['6'] + range_max]),
+                      #xaxis5=dict(title='age', range=[7-premargin, 6.5+range_max]),
+                      xaxis5=dict(title='age', range=[x_rage_mins['7'], x_rage_mins['7'] + range_max]),
+                      #xaxis6=dict(title='age', range=[8-premargin, 7.5+range_max]),
+                      xaxis6=dict(title='age', range=[x_rage_mins['8-'], x_rage_mins['8-'] + range_max]),
+                      yaxis=dict(title='Mean '+parameter_name, range=[min, max]),
+                      yaxis2=dict(range=[min, max]),
+                      yaxis3=dict(range=[min, max]),
+                      yaxis4=dict(range=[min, max]),
+                      yaxis5=dict(range=[min, max]),
+                      yaxis6=dict(range=[min, max]))
+
+  fig['layout'].update(layout)
+
+  fig.update_layout(plot_bgcolor="white")
+  fig.update_xaxes(linecolor='gray', linewidth=2)
+  fig.update_yaxes(gridcolor='lightgray')
+
+  #return(fig)
+  st.plotly_chart(fig)
+
 def animate_BI_PSR(df0, df):
   colors = [
     '#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#FF8C33', '#33FFF1', '#8C33FF', '#FF5733', '#57FF33', '#5733FF',
@@ -928,6 +1154,16 @@ for parameter in parameters:
   st.dataframe(result, width=800)
   st.markdown("---")
 
+st.write('')
+st.write('')
+st.write('頭囲の治療前後の変化（1か月以上の治療）')
+graham_hc(df_table)
+
+result = make_table('頭囲', df_table)
+#st.table(result)
+st.dataframe(result, width=800)
+st.markdown("---")
+
 #df_vis = takamatsu(df_tx)
 #st.dataframe(df_vis)
 #st.table(df_vis)
@@ -1073,6 +1309,48 @@ if submit_button:
           st.dataframe(result, width=800)
           st.markdown("---")
 
+      count = len(filtered_df_tx_pre_post['ダミーID'].unique())
+      st.write('')
+      st.write('')
+      st.write('頭囲の治療前後の変化　', str(count), '人')
+      graham_hc(filtered_df_tx_pre_post, x_limit=max_value)
+      result = make_table(parameter, filtered_df_tx_pre_post)
+      st.dataframe(result, width=800)
+      st.markdown("---")
+
+      if filter_pass0:
+        filtered_df_helmet = filtered_df_tx_pre_post[filtered_df_tx_pre_post['ヘルメット'] == 'アイメット']
+        count = len(filtered_df_helmet['ダミーID'].unique())
+        st.write('')
+        st.write('')
+        st.write('頭囲の治療前後の変化(アイメット)　', str(count), '人')
+        graham_hc(filtered_df_helmet, x_limit=max_value)
+        result = make_table('頭囲', filtered_df_helmet)
+        st.dataframe(result, width=800)
+        st.markdown("---")
+
+      if filter_pass1:
+        filtered_df_helmet = filtered_df_tx_pre_post[filtered_df_tx_pre_post['ヘルメット'] == 'クルム']
+        count = len(filtered_df_helmet['ダミーID'].unique())
+        st.write('')
+        st.write('')
+        st.write('頭囲の治療前後の変化(クルム)　', str(count), '人')
+        graham_hc(filtered_df_helmet, x_limit=max_value)
+        result = make_table('頭囲', filtered_df_helmet)
+        st.dataframe(result, width=800)
+        st.markdown("---")
+
+      if filter_pass2:
+        filtered_df_helmet = filtered_df_tx_pre_post[filtered_df_tx_pre_post['ヘルメット'] == 'クルムフィット']
+        count = len(filtered_df_helmet['ダミーID'].unique())
+        st.write('')
+        st.write('')
+        st.write('頭囲の治療前後の変化(クルムフィット)　', str(count), '人')
+        graham_hc(filtered_df_helmet, x_limit=max_value)
+        result = make_table('頭囲', filtered_df_helmet)
+        st.dataframe(result, width=800)
+        st.markdown("---")
+    
     if filter_pass3:
       st.write('経過観察した場合のグラフを表示します')
       count = len(filtered_df_co['ダミーID'].unique())
@@ -1088,6 +1366,16 @@ if submit_button:
         #st.table(result)
         st.dataframe(result, width=800)
         st.markdown("---")
+
+      st.write('')
+      st.write('')
+      line_plot('頭囲', filtered_df_co)
+
+      graham_hc(filtered_df_co)
+      result = make_table('頭囲', filtered_df_co, co = True)
+      #st.table(result)
+      st.dataframe(result, width=800)
+      st.markdown("---")
 
     #df_vis = takamatsu(filtered_df_tx_pre_post)
     #st.dataframe(df_vis)
