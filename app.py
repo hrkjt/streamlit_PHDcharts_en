@@ -864,7 +864,8 @@ def graham_hc(df, border=False, x_limit=False):
                       xaxis5=dict(title='age', range=[7, 7 + x_limit+1]),
                       #xaxis6=dict(title='age', range=[8-premargin, 7.5+range_max]),
                       xaxis6=dict(title='age', range=[8, 8 + x_limit+1]),
-                      yaxis=dict(title='Mean '+parameter_name, range=[min, max]),
+                      #yaxis=dict(title='Mean '+parameter_name, range=[min, max]),
+                      yaxis=dict(title='Mean head circumference', range=[min, max]), 
                       yaxis2=dict(range=[min, max]),
                       yaxis3=dict(range=[min, max]),
                       yaxis4=dict(range=[min, max]),
@@ -1173,7 +1174,7 @@ with st.form(key='filter_form'):
   )
 
   min_value, max_value = st.slider(
-      '治療期間の範囲を選択してください',
+      '治療期間（治療前スキャン〜治療後スキャンの間隔）の範囲を選択してください',
       min_value = max([int(df_tx_pre_post['治療期間'].min()),1]),
       #max_value = int(df_tx_pre_post['治療期間'].max()),
       max_value = 12,
