@@ -1035,7 +1035,7 @@ def animate_hc(df0, df):
     #成長曲線
     fig_px = px.line(df_gc, x='月齢', y='頭囲', color='sex', line_group='name')
     for trace in fig_px.data:
-      fig.add_trace(trace)
+      fig.add_trace(trace,  row=1, col=i+1)
 
   fig.update_xaxes(range = [df['月齢'].min()-2,df['月齢'].max()+2])
   fig.update_yaxes(range = [df['頭囲'].min()-2,df['頭囲'].max()+2])
