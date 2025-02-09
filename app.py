@@ -43,7 +43,7 @@ df_tx_pre_last['治療前月齢'] = df_tx_pre_last['月齢']
 
 category_orders={'治療前PSRレベル':['レベル1', 'レベル2', 'レベル3', 'レベル4'],
                    '治療前ASRレベル':['レベル1', 'レベル2', 'レベル3', 'レベル4'],
-                   '治療前短頭症':['軽症', '重症', '正常', '長頭'],
+                   '治療前短頭症':['重症', '軽症', '正常', '長頭'],
                    '治療前CA重症度':['正常', '軽症', '中等症', '重症', '最重症'],
                    '治療前CVAI重症度':['正常', '軽症', '中等症', '重症', '最重症'],
                    '治療前の月齢':[i for i in range(15)],
@@ -1214,6 +1214,8 @@ def make_confusion_matrix(df, parameter):
   pivot_table_combined["Total"] = pivot_table["Total"].astype(str)
 
   pivot_table_combined = pivot_table_combined.reindex(index=order, columns=order + ["Total"])
+
+  pivot_table_combined = pivot_table_combined.fillna('0 (0.0%)')
 
   return(pivot_table_combined)
 
