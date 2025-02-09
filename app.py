@@ -1200,7 +1200,7 @@ def make_confusion_matrix(df, parameter):
   pivot_table = for_pivot_df.pivot_table(index="治療前" + parameter_category_name, columns="最終" + parameter_category_name, aggfunc="size", fill_value=0)
 
   # 各行の合計を計算
-  pivot_table["合計"] = pivot_table.sum(axis=1)
+  pivot_table["Total"] = pivot_table.sum(axis=1)
 
   # 割合（行方向の合計で割る）
   pivot_table_percentage = pivot_table.div(pivot_table.sum(axis=1), axis=0) * 100
