@@ -1215,7 +1215,7 @@ def make_confusion_matrix(df, parameter):
 
   pivot_table_combined = pivot_table_combined.reindex(index=order, columns=order + ["Total"])
 
-  st.dataframe(pivot_table_combined, width=800)
+  return(pivot_table_combined)
 
 ##関数パート終了
 
@@ -1256,8 +1256,10 @@ for parameter in parameters:
   st.write('')
   st.write('')
   st.write(parameter+'の治療前後の変化（1か月以上の治療）')
-  make_confusion_matrix(df_table, parameter)
   graham(df_table, parameter)
+
+  result = make_confusion_matrix(df_table, parameter)
+  st.dataframe(result, width=800)
   
   result = make_table(parameter, df_table)
   #st.table(result)
@@ -1386,7 +1388,8 @@ if submit_button:
         st.write('')
         st.write(parameter+'の治療前後の変化　', str(count), '人')
         graham(filtered_df_tx_pre_post, parameter, x_limit=max_value)
-        make_confusion_matrix(filtered_df_tx_pre_post, parameter)
+        result = make_confusion_matrix(df_table, parameter)
+        st.dataframe(result, width=800)
         result = make_table(parameter, filtered_df_tx_pre_post)
         st.dataframe(result, width=800)
         st.markdown("---")
@@ -1477,7 +1480,10 @@ if submit_button:
         line_plot(parameter, filtered_df_co)
 
         graham(filtered_df_co, parameter)
-        make_confusion_matrix(filtered_df_co, parameter)
+        
+        result = make_confusion_matrix(df_table, parameter)
+        st.dataframe(result, width=800)
+        
         result = make_table(parameter, filtered_df_co, co = True)
         #st.table(result)
         st.dataframe(result, width=800)
