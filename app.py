@@ -1217,9 +1217,8 @@ def make_confusion_matrix(df, parameter):
   df1 = df.drop_duplicates('ダミーID', keep='last').sort_values('ダミーID').reset_index(drop=True)
   df_delta = df0.copy()
   df_delta['変化量'] = df1[parameter] - df0[parameter]
-  df_delta = df_delta.groupby("治療前" + parameter_category_name)['変化量'].mean()
   
-  pivot_table_combined['変化量'] = df_delta['変化量']
+  pivot_table_combined['変化量'] = df_delta.groupby("治療前" + parameter_category_name)['変化量'].mean().round(2).astype(str) + " ± " + df_delta.groupby("治療前" + parameter_category_name)['変化量'].std().round(2).astype(str)
   
   pivot_table_combined = pivot_table_combined.reindex(index=order, columns=order + ["Total", "変化量"])
 
