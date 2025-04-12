@@ -175,6 +175,8 @@ df_tx_pre_post['治療前の月齢'] = df_tx_pre_post['治療前月齢'].apply(l
 
 df_co['治療前の月齢'] = df_co['治療前月齢'].apply(lambda x: np.floor(x) if pd.notnull(x) else np.nan)
 
+df_co = add_post_levels(df_co)
+
 # Streamlitアプリのページ設定
 st.set_page_config(page_title='位置的頭蓋変形に関するデータの可視化', page_icon="📊", layout='wide')
 
@@ -1397,7 +1399,6 @@ if submit_button:
         st.write('')
         st.write(parameter+'の治療前後の変化　', str(count), '人')
         graham(filtered_df_tx_pre_post, parameter, x_limit=max_value)
-        st.write(list(filtered_df_tx_pre_post.columns))
         result = make_confusion_matrix(filtered_df_tx_pre_post, parameter)
         st.dataframe(result, width=800)
         result = make_table(parameter, filtered_df_tx_pre_post)
