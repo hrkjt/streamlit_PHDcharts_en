@@ -1397,6 +1397,7 @@ if submit_button:
         st.write('')
         st.write(parameter+'の治療前後の変化　', str(count), '人')
         graham(filtered_df_tx_pre_post, parameter, x_limit=max_value)
+        st.write(list(filtered_df_tx_pre_post.columns))
         result = make_confusion_matrix(filtered_df_tx_pre_post, parameter)
         st.dataframe(result, width=800)
         result = make_table(parameter, filtered_df_tx_pre_post)
