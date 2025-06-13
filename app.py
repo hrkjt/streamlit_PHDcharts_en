@@ -1190,6 +1190,13 @@ def animate_hc(df0, df):
   fig = px.scatter(df, x='age', y='頭囲', symbol = 'age before tx', facet_col = 'ヘルメット',
                    hover_data=['ダミーID', '治療期間', '治療前月齢', 'ヘルメット'] + parameters, category_orders=category_orders, animation_frame='status', animation_group='ダミーID', color_discrete_sequence=colors)
   i=0
+  
+  # sex のマッピング
+  sex_map = {
+      '男子': 'boy',
+      '女子': 'girl'
+  }
+  
   for i in range(len(df['ヘルメット'].unique())):
     #正常範囲
     # fig.add_trace(go.Scatter(x=[df['月齢'].min(), df['月齢'].max()], y=borders[parameter], mode='lines', line=dict(color='gray', dash = 'dot'), name=parameter+'の正常との境界'), row=1, col=i+1)
@@ -1197,6 +1204,9 @@ def animate_hc(df0, df):
     #成長曲線
     fig_px = px.line(df_gc, x='月齢', y='頭囲', color='sex', line_group='name')
     for trace in fig_px.data:
+      trace.name = sex_map.get(trace.name, trace.name)
+      trace.legendgroup = trace.name
+      trace.showlegend = True
       fig.add_trace(trace,  row=1, col=i+1)
 
   fig.update_xaxes(range = [df['age'].min()-2,df['age'].max()+2])
