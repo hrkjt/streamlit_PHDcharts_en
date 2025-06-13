@@ -1251,7 +1251,7 @@ def make_table(parameter, df, co = False):
 
   # 結果表示
   #import ace_tools as tools; tools.display_dataframe_to_user(name="信頼区間を含む統計結果", dataframe=result)
-  result = result.rename(columns={'mean':'mean', 'std':'SD', 'count':'Number', 'se':'SE', 'min':'Min', 'max':'Max',
+  result = result.rename(columns={'mean':'Mean', 'std':'SD', 'count':'Number', 'se':'SE', 'min':'Min', 'max':'Max',
                                   'mean_d':'Mean Period', 'std_d':'SD ', 'se_d':'SE ', 'min_d':'Min ', 'max_d':'Max '})
   result = result.replace(np.nan, '-')
   result['95% CI'] = result['95% CI lower'].astype(str) + ' ～ ' + result['95% CI upper'].astype(str)
