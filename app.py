@@ -1056,7 +1056,7 @@ def animate_CI_PSR(df0, df):
   #width = 800*(i+1)
   width = 800*len(df['ヘルメット'].unique())
 
-  fig.update_layout(height=800, width=width, title='Changes in CI and PSR before and after treatment')
+  fig.update_layout(height=800, width=width, title='Changes in CI and PSR before and after treatment', yaxis_title_text='PSR')
 
   # for annotation in fig.layout.annotations:
   #   annotation.text = annotation.text.split('=')[-1]
@@ -1102,23 +1102,38 @@ def animate(parameter, df0, df):
 
   df = df[~df['ダミーID'].isin(common_patients)]
 
-  fig = px.scatter(df, x='月齢', y=parameter, color=levels[parameter], symbol = 'age before tx', facet_col = 'ヘルメット',
+  df = df.rename(columns = {'月齢':'age'})
+
+  fig = px.scatter(df, x='age', y=parameter, color=levels[parameter], symbol = 'age before tx', facet_col = 'ヘルメット',
                    hover_data=['ダミーID', '治療期間', '治療前月齢', 'ヘルメット'] + parameters, category_orders=category_orders, animation_frame='治療ステータス', animation_group='ダミーID', color_discrete_sequence=colors)
   i=0
   for i in range(len(df['ヘルメット'].unique())):
     #正常範囲
-    fig.add_trace(go.Scatter(x=[df['月齢'].min(), df['月齢'].max()], y=borders[parameter], mode='lines', line=dict(color='gray', dash = 'dot'), name=parameter+'の正常との境界'), row=1, col=i+1)
+    fig.add_trace(go.Scatter(x=[df['age'].min(), df['age'].max()], y=borders[parameter], mode='lines', line=dict(color='gray', dash = 'dot'), name='border of normal ' + en_parameter[parameter]), row=1, col=i+1)
 
-  fig.update_xaxes(range = [df['月齢'].min()-2,df['月齢'].max()+2])
+  fig.update_xaxes(range = [df['age'].min()-2,df['age'].max()+2])
   fig.update_yaxes(range = [df[parameter].min()-2,df[parameter].max()+2])
 
   #width = 800*(i+1)
   width = 800*len(df['ヘルメット'].unique())
 
-  fig.update_layout(height=800, width=width, title=parameter+'の治療前後の変化')
+  # fig.update_layout(height=800, width=width, title=parameter+'の治療前後の変化')
+  fig.update_layout(height=800, width=width, title='Change in ' + en_parameter[parameter] +' before and after treatment',
+                   xaxis_title_text='age', yaxis_title_text=en_parameter[parameter])
 
-  for annotation in fig.layout.annotations:
-    annotation.text = annotation.text.split('=')[-1]
+  # for annotation in fig.layout.annotations:
+  #   annotation.text = annotation.text.split('=')[-1]
+    
+  # ヘルメット名のマッピング辞書
+  helmet_map = {
+      'クルム': 'Qurum',
+      'アイメット': 'Aimet',
+      'クルムフィット': 'Qurum Fit',
+      '経過観察': 'Observation'
+  }
+
+  # アノテーションのテキストを更新
+  fig.for_each_annotation(lambda a: a.update(text=helmet_map.get(a.text.split('=')[1], a.text)))  
 
   st.plotly_chart(fig)
 
@@ -1159,7 +1174,8 @@ def animate_hc(df0, df):
   #width = 800*(i+1)
   width = 800*len(df['ヘルメット'].unique())
 
-  fig.update_layout(height=800, width=width, title='頭囲の治療前後の変化')
+  fig.update_layout(height=800, width=width, title='Change in ' + en_parameter['頭囲'] +' before and after treatment')
+  
 
   for annotation in fig.layout.annotations:
     annotation.text = annotation.text.split('=')[-1]
@@ -1184,7 +1200,9 @@ def line_plot(parameter, df):
 
   fig.update_xaxes(range = [df['月齢'].min()-2,df['月齢'].max()+2])
   fig.update_yaxes(range = [df[parameter].min()-2,df[parameter].max()+2])
-  fig.update_layout(width=900, title='経過観察前後の' + parameter + 'の変化')
+  # fig.update_layout(width=900, title='経過観察前後の' + parameter + 'の変化')
+  fig.update_layout(width=900, title='Change in ' + en_parameter[parameter] +' before and after observation',
+                   xaxis_title_text='age', yaxis_title_text=en_parameter[parameter])
 
   st.plotly_chart(fig)
 
@@ -1372,7 +1390,7 @@ st.markdown("---")
 #st.table(df_vis)
 
 with st.form(key='filter_form'):
-  st.write('Create a graph by filtering the patients')
+  st.write('Generate charts by applying filters to patient data.')
 
   # スライダーで範囲を指定
   min_age, max_age = st.slider(
@@ -1576,7 +1594,7 @@ if submit_button:
     
     if filter_pass3:
       # st.write('経過観察した場合のグラフを表示します')
-      st.write('Displays a graph of the progress of the observation')
+      st.write('Visualizes the progress of patient follow-up observations')
       count = len(filtered_df_co['ダミーID'].unique())
       st.write(str(count), '人')
       #st.dataframe(filtered_df_co, width=800)
@@ -1610,4 +1628,4 @@ if submit_button:
     #st.table(df_vis)
 else:
     # st.write('実行ボタンを押すとグラフが作成されます')
-    st.write('Click the Run button to create a graph')
+    st.write('Click the Run button to generate charts')
