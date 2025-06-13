@@ -49,7 +49,7 @@ category_orders={'PSR level before tx':['Level 1', 'Level 2', 'Level 3', 'Level 
                    'age before tx':[i for i in range(15)],
                    'age at first':[i for i in range(15)]}
 
-en_parameter = ['月齢':'age, '前後径':'length', '左右径':'width', '頭囲':'head circumferences', '短頭率':'brachy index', 
+en_parameter = ['月齢':'age', '前後径':'length', '左右径':'width', '頭囲':'head circumferences', '短頭率':'brachy index', 
                 '前頭部対称率':'ASR', 'CA':'CA', '後頭部対称率':'PSR', 'CVAI':'CVAI', 'CI':'CI']
 
 def add_pre_levels(df):
