@@ -1199,8 +1199,8 @@ def animate_hc(df0, df):
     for trace in fig_px.data:
       fig.add_trace(trace,  row=1, col=i+1)
 
-  fig.update_xaxes(range = [df['age'].min()-2,df['月齢'].max()+2])
-  fig.update_yaxes(range = [df['age'].min()-2,df['頭囲'].max()+2])
+  fig.update_xaxes(range = [df['age'].min()-2,df['age'].max()+2])
+  fig.update_yaxes(range = [df['age'].min()-2,df['age'].max()+2])
 
   #width = 800*(i+1)
   width = 800*len(df['ヘルメット'].unique())
