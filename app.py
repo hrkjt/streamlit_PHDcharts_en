@@ -87,36 +87,36 @@ def add_pre_levels(df):
   return(df)
 
 def add_post_levels(df):
-  df['最終PSRレベル'] = ''
-  df['最終PSRレベル'] = df['最終PSRレベル'].mask(df['後頭部対称率']>=90, 'Level 1')
-  df['最終PSRレベル'] = df['最終PSRレベル'].mask(df['後頭部対称率']<90, 'Level 2')
-  df['最終PSRレベル'] = df['最終PSRレベル'].mask(df['後頭部対称率']<85, 'Level 3')
-  df['最終PSRレベル'] = df['最終PSRレベル'].mask(df['後頭部対称率']<80, 'Level 4')
+  df['PSR level after tx'] = ''
+  df['PSR level after tx'] = df['PSR level after tx'].mask(df['後頭部対称率']>=90, 'Level 1')
+  df['PSR level after tx'] = df['PSR level after tx'].mask(df['後頭部対称率']<90, 'Level 2')
+  df['PSR level after tx'] = df['PSR level after tx'].mask(df['後頭部対称率']<85, 'Level 3')
+  df['PSR level after tx'] = df['PSR level after tx'].mask(df['後頭部対称率']<80, 'Level 4')
 
-  df['最終ASRレベル'] = ''
-  df['最終ASRレベル'] = df['最終ASRレベル'].mask(df['前頭部対称率']>=90, 'Level 1')
-  df['最終ASRレベル'] = df['最終ASRレベル'].mask(df['前頭部対称率']<90, 'Level 2')
-  df['最終ASRレベル'] = df['最終ASRレベル'].mask(df['前頭部対称率']<85, 'Level 3')
-  df['最終ASRレベル'] = df['最終ASRレベル'].mask(df['前頭部対称率']<80, 'Level 4')
+  df['ASR level after tx'] = ''
+  df['ASR level after tx'] = df['ASR level after tx'].mask(df['前頭部対称率']>=90, 'Level 1')
+  df['ASR level after tx'] = df['ASR level after tx'].mask(df['前頭部対称率']<90, 'Level 2')
+  df['ASR level after tx'] = df['ASR level after tx'].mask(df['前頭部対称率']<85, 'Level 3')
+  df['ASR level after tx'] = df['ASR level after tx'].mask(df['前頭部対称率']<80, 'Level 4')
 
-  df['最終CA重症度'] = 'Normal'
-  df['最終CA重症度'] = df['最終CA重症度'].mask(df['CA']>6, 'Mild')
-  df['最終CA重症度'] = df['最終CA重症度'].mask(df['CA']>9, 'Moderate')
-  df['最終CA重症度'] = df['最終CA重症度'].mask(df['CA']>13, 'Severe')
-  df['最終CA重症度'] = df['最終CA重症度'].mask(df['CA']>17, 'Very severe')
+  df['CA severity after tx'] = 'Normal'
+  df['CA severity after tx'] = df['CA severity after tx'].mask(df['CA']>6, 'Mild')
+  df['CA severity after tx'] = df['CA severity after tx'].mask(df['CA']>9, 'Moderate')
+  df['CA severity after tx'] = df['CA severity after tx'].mask(df['CA']>13, 'Severe')
+  df['CA severity after tx'] = df['CA severity after tx'].mask(df['CA']>17, 'Very severe')
 
-  df['最終CVAI重症度'] = 'Normal'
-  df['最終CVAI重症度'] = df['最終CVAI重症度'].mask(df['CVAI']>5, 'Mild')
-  df['最終CVAI重症度'] = df['最終CVAI重症度'].mask(df['CVAI']>7, 'Moderate')
-  df['最終CVAI重症度'] = df['最終CVAI重症度'].mask(df['CVAI']>10, 'Severe')
-  df['最終CVAI重症度'] = df['最終CVAI重症度'].mask(df['CVAI']>14, 'Very severe')
+  df['CVAI severity after tx'] = 'Normal'
+  df['CVAI severity after tx'] = df['CVAI severity after tx'].mask(df['CVAI']>5, 'Mild')
+  df['CVAI severity after tx'] = df['CVAI severity after tx'].mask(df['CVAI']>7, 'Moderate')
+  df['CVAI severity after tx'] = df['CVAI severity after tx'].mask(df['CVAI']>10, 'Severe')
+  df['CVAI severity after tx'] = df['CVAI severity after tx'].mask(df['CVAI']>14, 'Very severe')
 
-  df['最終短頭症'] = ''
-  df['最終短頭症'] = df['最終短頭症'].mask(df['短頭率']>126, 'Scaphocephaly')
-  df['最終短頭症'] = df['最終短頭症'].mask(df['短頭率']<=126, 'Normal')
-  df['最終短頭症'] = df['最終短頭症'].mask(df['短頭率']<106, 'Mild')
-  df['最終短頭症'] = df['最終短頭症'].mask(df['短頭率']<103, 'Moderate')
-  df['最終短頭症'] = df['最終短頭症'].mask(df['短頭率']<100, 'Severe')
+  df['Brachycephaly severity after tx'] = ''
+  df['Brachycephaly severity after tx'] = df['Brachycephaly severity after tx'].mask(df['短頭率']>126, 'Scaphocephaly')
+  df['Brachycephaly severity after tx'] = df['Brachycephaly severity after tx'].mask(df['短頭率']<=126, 'Normal')
+  df['Brachycephaly severity after tx'] = df['Brachycephaly severity after tx'].mask(df['短頭率']<106, 'Mild')
+  df['Brachycephaly severity after tx'] = df['Brachycephaly severity after tx'].mask(df['短頭率']<103, 'Moderate')
+  df['Brachycephaly severity after tx'] = df['Brachycephaly severity after tx'].mask(df['短頭率']<100, 'Severe')
 
   return(df)
 
@@ -146,7 +146,7 @@ df_tx_post_last = df_tx_post.drop_duplicates('ダミーID', keep='last')
 
 df_tx_post_last = add_post_levels(df_tx_post_last)
 
-df_tx_pre_post = pd.merge(df_tx_pre_post, df_tx_post_last[['ダミーID','最終PSRレベル', '最終ASRレベル', '最終短頭症', '最終CA重症度', '最終CVAI重症度']], on='ダミーID', how='left')
+df_tx_pre_post = pd.merge(df_tx_pre_post, df_tx_post_last[['ダミーID','PSR level after tx', 'ASR level after tx', 'Brachycephaly severity after tx', 'CA severity after tx', 'CVAI severity after tx']], on='ダミーID', how='left')
 
 #経過観察
 df_first = add_pre_levels(df_first)
@@ -1275,7 +1275,7 @@ def make_confusion_matrix(df, parameter):
 
   for_pivot_df = df.drop_duplicates('ダミーID')
 
-  pivot_table = for_pivot_df.pivot_table(index=parameter_category_name + ' before tx', columns="最終" + parameter_category_name, aggfunc="size", fill_value=0)
+  pivot_table = for_pivot_df.pivot_table(index=parameter_category_name + ' before tx', columns=parameter_category_name + ' after tx', aggfunc="size", fill_value=0)
 
   # 各行の合計を計算
   pivot_table["Total"] = pivot_table.sum(axis=1)
