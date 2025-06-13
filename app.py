@@ -262,7 +262,7 @@ def hist(parameter='短頭率', df_first=df_first):
   fig.update_layout(width=1600, height=900,
       plot_bgcolor='white',
       # title_text=parameter+'の分布（全'+all_number+'人で'+str(tx_rate)+'％が治療）',
-      title_text= 'Distribution of ' + en_parameter[parameter] + ' (' + str(tx_rate) + '％ treated in ' + all_number + ' patients',
+      title_text= 'Distribution of ' + en_parameter[parameter] + ' (' + str(tx_rate) + '％ treated in ' + all_number + ' patients)',
       xaxis_title_text=en_parameter[parameter],
       yaxis_title_text='Number of patients',
       barmode='stack'
@@ -496,11 +496,11 @@ def graham(df, parameter, border=False, x_limit=False):
   parameter_name = parameter_names[parameter]
 
   if parameter in ['後頭部対称率', '前頭部対称率']:
-    levels = ['レベル1', 'レベル2', 'レベル3', 'レベル4']
+    levels = ['Level 1', 'Level 2', 'Level 3', 'Level 4']
   elif parameter in ['CA', 'CVAI']:
-    levels = ['軽症', '中等症', '重症', '最重症']
+    levels = ['Mild', 'Moderate', 'Severe', 'Very severe']
   else:
-    levels = ['軽症', '中等症', '重症']
+    levels = ['Mild', 'Moderate', 'Severe']
 
   line_colors = ['blue', 'green', 'black', 'red', 'purple']
   #line_colors = ['rgb(150,150,150)', 'rgb(100,100,100)', 'rgb(50,50,50)', 'black']
@@ -1268,14 +1268,14 @@ def make_table(parameter, df, co = False):
   return (result)
 
 def make_confusion_matrix(df, parameter):
-  parameter_category_names = {'短頭率': '短頭症', '前頭部対称率':'ASRレベル', 'CA':'CA重症度', '後頭部対称率':'PSRレベル', 'CVAI':'CVAI重症度', 'CI':'短頭症'}
+  parameter_category_names = {'短頭率': 'Brachycephaly severity', '前頭部対称率':'ASR level', 'CA':'CA severity', '後頭部対称率':'PSR level', 'CVAI':'CVAI severity', 'CI':'Brachycephaly severity'}
   parameter_category_name = parameter_category_names[parameter]
 
-  order = category_orders['治療前'+parameter_category_name]
+  order = category_orders[parameter_category_name + ' before tx']
 
   for_pivot_df = df.drop_duplicates('ダミーID')
 
-  pivot_table = for_pivot_df.pivot_table(index="治療前" + parameter_category_name, columns="最終" + parameter_category_name, aggfunc="size", fill_value=0)
+  pivot_table = for_pivot_df.pivot_table(index=parameter_category_name + ' before tx', columns="最終" + parameter_category_name, aggfunc="size", fill_value=0)
 
   # 各行の合計を計算
   pivot_table["Total"] = pivot_table.sum(axis=1)
@@ -1296,7 +1296,7 @@ def make_confusion_matrix(df, parameter):
   df_delta = df0.copy()
   df_delta['Change'] = df1[parameter] - df0[parameter]
   
-  pivot_table_combined['Change'] = df_delta.groupby("治療前" + parameter_category_name)['Change'].mean().round(2).astype(str) + " ± " + df_delta.groupby("治療前" + parameter_category_name)['Change'].std().round(2).astype(str)
+  pivot_table_combined['Change'] = df_delta.groupby(parameter_category_name + ' before tx')['Change'].mean().round(2).astype(str) + " ± " + df_delta.groupby(parameter_category_name + ' before tx')['Change'].std().round(2).astype(str)
   
   pivot_table_combined = pivot_table_combined.reindex(index=order, columns=order + ["Total", "Change"])
 
@@ -1318,7 +1318,7 @@ yesterday = datetime.now() - timedelta(days=1)
 # YYYY年MM月DD日形式でフォーマット
 formatted_date = yesterday.strftime("%B %-d, %Y") #.strftime("%Y年%m月%d日")
 
-st.markdown(f'<div style="text-align: left; color:black; font-size:18px;">The graph below is based on data from March 4, 2021 to {formatted_date}以下のグラフは2021年03月04日から{formatted_date}までのデータにもとづいています</div>', unsafe_allow_html=True)
+st.markdown(f'<div style="text-align: left; color:black; font-size:18px;">The graph below is based on data from March 4, 2021 to {formatted_date}</div>', unsafe_allow_html=True)
 #st.write('以下のグラフは2021年03月04日から' + formatted_date + 'までのデータにもとづいています')
 
 st.write('')
