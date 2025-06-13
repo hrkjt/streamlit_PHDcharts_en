@@ -1205,7 +1205,7 @@ def animate_hc(df0, df):
   #width = 800*(i+1)
   width = 800*len(df['ヘルメット'].unique())
 
-  fig.update_layout(height=800, width=width, title='Change in ' + en_parameter['age'] +' before and after treatment',
+  fig.update_layout(height=800, width=width, title='Change in ' + en_parameter['頭囲'] +' before and after treatment',
                    xaxis_title_text='age', yaxis_title_text=en_parameter['頭囲'])
   
 
