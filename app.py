@@ -1031,6 +1031,17 @@ def animate_CI_PSR(df0, df):
 
   df = df[~df['ダミーID'].isin(common_patients)]
 
+  # 治療ステータスのマッピング辞書
+  status_map = {
+      '治療前': 'before tx',
+      '治療後': 'after tx'
+  }
+  
+  # データフレームのコピーを作成し、治療ステータスを英語に変換
+  df['治療ステータス'] = df['治療ステータス'].map(status_map)
+  
+  df = df.rename(columns = {'治療ステータス':'status'})    
+  
   # ヘルメット名のマッピング辞書
   helmet_map = {
       'クルム': 'Qurum',
@@ -1040,7 +1051,7 @@ def animate_CI_PSR(df0, df):
   }
 
   fig = px.scatter(df, x='CI', y='後頭部対称率', color='PSR level before tx', symbol='Brachycephaly severity before tx', facet_col = 'ヘルメット',
-                   hover_data=['ダミーID', '治療期間', '治療前月齢', 'ヘルメット'] + parameters, category_orders=category_orders, animation_frame='治療ステータス', animation_group='ダミーID', color_discrete_sequence=colors)
+                   hover_data=['ダミーID', '治療期間', '治療前月齢', 'ヘルメット'] + parameters, category_orders=category_orders, animation_frame='status', animation_group='ダミーID', color_discrete_sequence=colors)
   i=0
   for i in range(len(df['ヘルメット'].unique())):
     #短頭率の正常範囲
@@ -1102,10 +1113,19 @@ def animate(parameter, df0, df):
 
   df = df[~df['ダミーID'].isin(common_patients)]
 
-  df = df.rename(columns = {'月齢':'age'})
-
+  # 治療ステータスのマッピング辞書
+  status_map = {
+      '治療前': 'before tx',
+      '治療後': 'after tx'
+  }
+  
+  # データフレームのコピーを作成し、治療ステータスを英語に変換
+  df['治療ステータス'] = df['治療ステータス'].map(status_map)
+  
+  df = df.rename(columns = {'月齢':'age', '治療ステータス':'status'})
+  
   fig = px.scatter(df, x='age', y=parameter, color=levels[parameter], symbol = 'age before tx', facet_col = 'ヘルメット',
-                   hover_data=['ダミーID', '治療期間', '治療前月齢', 'ヘルメット'] + parameters, category_orders=category_orders, animation_frame='治療ステータス', animation_group='ダミーID', color_discrete_sequence=colors)
+                   hover_data=['ダミーID', '治療期間', '治療前月齢', 'ヘルメット'] + parameters, category_orders=category_orders, animation_frame='status', animation_group='ダミーID', color_discrete_sequence=colors)
   i=0
   for i in range(len(df['ヘルメット'].unique())):
     #正常範囲
@@ -1156,8 +1176,19 @@ def animate_hc(df0, df):
 
   df = df[~df['ダミーID'].isin(common_patients)]
 
+  # 治療ステータスのマッピング辞書
+  status_map = {
+      '治療前': 'before tx',
+      '治療後': 'after tx'
+  }
+  
+  # データフレームのコピーを作成し、治療ステータスを英語に変換
+  df['治療ステータス'] = df['治療ステータス'].map(status_map)
+  
+  df = df.rename(columns = {'治療ステータス':'status'})  
+  
   fig = px.scatter(df, x='月齢', y='頭囲', symbol = 'age before tx', facet_col = 'ヘルメット',
-                   hover_data=['ダミーID', '治療期間', '治療前月齢', 'ヘルメット'] + parameters, category_orders=category_orders, animation_frame='治療ステータス', animation_group='ダミーID', color_discrete_sequence=colors)
+                   hover_data=['ダミーID', '治療期間', '治療前月齢', 'ヘルメット'] + parameters, category_orders=category_orders, animation_frame='status', animation_group='ダミーID', color_discrete_sequence=colors)
   i=0
   for i in range(len(df['ヘルメット'].unique())):
     #正常範囲
@@ -1174,12 +1205,24 @@ def animate_hc(df0, df):
   #width = 800*(i+1)
   width = 800*len(df['ヘルメット'].unique())
 
-  fig.update_layout(height=800, width=width, title='Change in ' + en_parameter['頭囲'] +' before and after treatment')
+  fig.update_layout(height=800, width=width, title='Change in ' + en_parameter['頭囲'] +' before and after treatment',
+                   xaxis_title_text='age', yaxis_title_text=en_parameter['頭囲'])
   
 
-  for annotation in fig.layout.annotations:
-    annotation.text = annotation.text.split('=')[-1]
+  # for annotation in fig.layout.annotations:
+  #   annotation.text = annotation.text.split('=')[-1]
 
+  # ヘルメット名のマッピング辞書
+  helmet_map = {
+      'クルム': 'Qurum',
+      'アイメット': 'Aimet',
+      'クルムフィット': 'Qurum Fit',
+      '経過観察': 'Observation'
+  }
+
+  # アノテーションのテキストを更新
+  fig.for_each_annotation(lambda a: a.update(text=helmet_map.get(a.text.split('=')[1], a.text)))  
+  
   st.plotly_chart(fig)
 
 def line_plot(parameter, df):
@@ -1425,7 +1468,7 @@ if submit_button:
   if not filter_pass0 and not filter_pass1 and not filter_pass2 and not filter_pass3:
     st.write('Please select one or more checkboxes')
   else:
-    st.write('The chosen treatment period (interval between pre-treatment and post-treatment scans)：', str(min_value), "〜", str(max_value), "か月")
+    st.write('The chosen treatment period (interval between pre-treatment and post-treatment scans)：', str(min_value), "〜", str(max_value), "months")
     
     filtered_df = df_tx_pre_post[df_tx_pre_post['治療ステータス'] == '治療後']
         # スライダーで選択された範囲でデータをフィルタリング
