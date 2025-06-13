@@ -41,79 +41,82 @@ df_tx_pre_last = df_tx[df_tx['治療ステータス'] == '治療前'].drop_dupli
 
 df_tx_pre_last['治療前月齢'] = df_tx_pre_last['月齢']
 
-category_orders={'治療前PSRレベル':['レベル1', 'レベル2', 'レベル3', 'レベル4'],
-                   '治療前ASRレベル':['レベル1', 'レベル2', 'レベル3', 'レベル4'],
-                   '治療前短頭症':['重症', '中等症', '軽症', '正常', '長頭'],
-                   '治療前CA重症度':['正常', '軽症', '中等症', '重症', '最重症'],
-                   '治療前CVAI重症度':['正常', '軽症', '中等症', '重症', '最重症'],
-                   '治療前の月齢':[i for i in range(15)],
-                   '初診時の月齢':[i for i in range(15)]}
+category_orders={'PSR level before tx':['Level 1', 'Level 2', 'Level 3', 'Level 4'],
+                   'ASR level before tx':['Level 1', 'Level 2', 'Level 3', 'Level 4'],
+                   'Brachycephaly severity before tx':['Severe', 'Moderate', 'Mild', 'Normal', 'Scaphocephaly'],
+                   'CA severity before tx':['Normal', 'Mild', 'Moderate', 'Severe', 'Very severe'],
+                   'CVAI severity before tx':['Normal', 'Mild', 'Moderate', 'Severe', 'Very severe'],
+                   'age before tx':[i for i in range(15)],
+                   'age at first':[i for i in range(15)]}
+
+en_parameter = ['月齢':'age, '前後径':'length', '左右径':'width', '頭囲':'head circumferences', '短頭率':'brachy index', 
+                '前頭部対称率':'ASR', 'CA':'CA', '後頭部対称率':'PSR', 'CVAI':'CVAI', 'CI':'CI']
 
 def add_pre_levels(df):
-  df['治療前PSRレベル'] = ''
-  df['治療前PSRレベル'] = df['治療前PSRレベル'].mask(df['後頭部対称率']>=90, 'レベル1')
-  df['治療前PSRレベル'] = df['治療前PSRレベル'].mask(df['後頭部対称率']<90, 'レベル2')
-  df['治療前PSRレベル'] = df['治療前PSRレベル'].mask(df['後頭部対称率']<85, 'レベル3')
-  df['治療前PSRレベル'] = df['治療前PSRレベル'].mask(df['後頭部対称率']<80, 'レベル4')
+  df['PSR level before tx'] = ''
+  df['PSR level before tx'] = df['PSR level before tx'].mask(df['後頭部対称率']>=90, 'Level 1')
+  df['PSR level before tx'] = df['PSR level before tx'].mask(df['後頭部対称率']<90, 'Level 2')
+  df['PSR level before tx'] = df['PSR level before tx'].mask(df['後頭部対称率']<85, 'Level 3')
+  df['PSR level before tx'] = df['PSR level before tx'].mask(df['後頭部対称率']<80, 'Level 4')
 
-  df['治療前ASRレベル'] = ''
-  df['治療前ASRレベル'] = df['治療前ASRレベル'].mask(df['前頭部対称率']>=90, 'レベル1')
-  df['治療前ASRレベル'] = df['治療前ASRレベル'].mask(df['前頭部対称率']<90, 'レベル2')
-  df['治療前ASRレベル'] = df['治療前ASRレベル'].mask(df['前頭部対称率']<85, 'レベル3')
-  df['治療前ASRレベル'] = df['治療前ASRレベル'].mask(df['前頭部対称率']<80, 'レベル4')
+  df['ASR level before tx'] = ''
+  df['ASR level before tx'] = df['ASR level before tx'].mask(df['前頭部対称率']>=90, 'Level 1')
+  df['ASR level before tx'] = df['ASR level before tx'].mask(df['前頭部対称率']<90, 'Level 2')
+  df['ASR level before tx'] = df['ASR level before tx'].mask(df['前頭部対称率']<85, 'Level 3')
+  df['ASR level before tx'] = df['ASR level before tx'].mask(df['前頭部対称率']<80, 'Level 4')
 
-  df['治療前CA重症度'] = '正常'
-  df['治療前CA重症度'] = df['治療前CA重症度'].mask(df['CA']>6, '軽症')
-  df['治療前CA重症度'] = df['治療前CA重症度'].mask(df['CA']>9, '中等症')
-  df['治療前CA重症度'] = df['治療前CA重症度'].mask(df['CA']>13, '重症')
-  df['治療前CA重症度'] = df['治療前CA重症度'].mask(df['CA']>17, '最重症')
+  df['CA severity before tx'] = 'Normal'
+  df['CA severity before tx'] = df['CA severity before tx'].mask(df['CA']>6, 'Mild')
+  df['CA severity before tx'] = df['CA severity before tx'].mask(df['CA']>9, 'Moderate')
+  df['CA severity before tx'] = df['CA severity before tx'].mask(df['CA']>13, 'Severe')
+  df['CA severity before tx'] = df['CA severity before tx'].mask(df['CA']>17, 'Very severe')
 
-  df['治療前CVAI重症度'] = '正常'
-  df['治療前CVAI重症度'] = df['治療前CVAI重症度'].mask(df['CVAI']>5, '軽症')
-  df['治療前CVAI重症度'] = df['治療前CVAI重症度'].mask(df['CVAI']>7, '中等症')
-  df['治療前CVAI重症度'] = df['治療前CVAI重症度'].mask(df['CVAI']>10, '重症')
-  df['治療前CVAI重症度'] = df['治療前CVAI重症度'].mask(df['CVAI']>14, '最重症')
+  df['CVAI severity before tx'] = 'Normal'
+  df['CVAI severity before tx'] = df['CVAI severity before tx'].mask(df['CVAI']>5, 'Mild')
+  df['CVAI severity before tx'] = df['CVAI severity before tx'].mask(df['CVAI']>7, 'Moderate')
+  df['CVAI severity before tx'] = df['CVAI severity before tx'].mask(df['CVAI']>10, 'Severe')
+  df['CVAI severity before tx'] = df['CVAI severity before tx'].mask(df['CVAI']>14, 'Very severe')
 
-  df['治療前短頭症'] = ''
-  df['治療前短頭症'] = df['治療前短頭症'].mask(df['短頭率']>126, '長頭')
-  df['治療前短頭症'] = df['治療前短頭症'].mask(df['短頭率']<=126, '正常')
-  df['治療前短頭症'] = df['治療前短頭症'].mask(df['短頭率']<106, '軽症')
-  df['治療前短頭症'] = df['治療前短頭症'].mask(df['短頭率']<103, '中等症')
-  df['治療前短頭症'] = df['治療前短頭症'].mask(df['短頭率']<100, '重症')
+  df['Brachycephaly severity before tx'] = ''
+  df['Brachycephaly severity before tx'] = df['Brachycephaly severity before tx'].mask(df['短頭率']>126, 'Scaphocephaly')
+  df['Brachycephaly severity before tx'] = df['Brachycephaly severity before tx'].mask(df['短頭率']<=126, 'Normal')
+  df['Brachycephaly severity before tx'] = df['Brachycephaly severity before tx'].mask(df['短頭率']<106, 'Mild')
+  df['Brachycephaly severity before tx'] = df['Brachycephaly severity before tx'].mask(df['短頭率']<103, 'Moderate')
+  df['Brachycephaly severity before tx'] = df['Brachycephaly severity before tx'].mask(df['短頭率']<100, 'Severe')
 
   return(df)
 
 def add_post_levels(df):
   df['最終PSRレベル'] = ''
-  df['最終PSRレベル'] = df['最終PSRレベル'].mask(df['後頭部対称率']>=90, 'レベル1')
-  df['最終PSRレベル'] = df['最終PSRレベル'].mask(df['後頭部対称率']<90, 'レベル2')
-  df['最終PSRレベル'] = df['最終PSRレベル'].mask(df['後頭部対称率']<85, 'レベル3')
-  df['最終PSRレベル'] = df['最終PSRレベル'].mask(df['後頭部対称率']<80, 'レベル4')
+  df['最終PSRレベル'] = df['最終PSRレベル'].mask(df['後頭部対称率']>=90, 'Level 1')
+  df['最終PSRレベル'] = df['最終PSRレベル'].mask(df['後頭部対称率']<90, 'Level 2')
+  df['最終PSRレベル'] = df['最終PSRレベル'].mask(df['後頭部対称率']<85, 'Level 3')
+  df['最終PSRレベル'] = df['最終PSRレベル'].mask(df['後頭部対称率']<80, 'Level 4')
 
   df['最終ASRレベル'] = ''
-  df['最終ASRレベル'] = df['最終ASRレベル'].mask(df['前頭部対称率']>=90, 'レベル1')
-  df['最終ASRレベル'] = df['最終ASRレベル'].mask(df['前頭部対称率']<90, 'レベル2')
-  df['最終ASRレベル'] = df['最終ASRレベル'].mask(df['前頭部対称率']<85, 'レベル3')
-  df['最終ASRレベル'] = df['最終ASRレベル'].mask(df['前頭部対称率']<80, 'レベル4')
+  df['最終ASRレベル'] = df['最終ASRレベル'].mask(df['前頭部対称率']>=90, 'Level 1')
+  df['最終ASRレベル'] = df['最終ASRレベル'].mask(df['前頭部対称率']<90, 'Level 2')
+  df['最終ASRレベル'] = df['最終ASRレベル'].mask(df['前頭部対称率']<85, 'Level 3')
+  df['最終ASRレベル'] = df['最終ASRレベル'].mask(df['前頭部対称率']<80, 'Level 4')
 
-  df['最終CA重症度'] = '正常'
-  df['最終CA重症度'] = df['最終CA重症度'].mask(df['CA']>6, '軽症')
-  df['最終CA重症度'] = df['最終CA重症度'].mask(df['CA']>9, '中等症')
-  df['最終CA重症度'] = df['最終CA重症度'].mask(df['CA']>13, '重症')
-  df['最終CA重症度'] = df['最終CA重症度'].mask(df['CA']>17, '最重症')
+  df['最終CA重症度'] = 'Normal'
+  df['最終CA重症度'] = df['最終CA重症度'].mask(df['CA']>6, 'Mild')
+  df['最終CA重症度'] = df['最終CA重症度'].mask(df['CA']>9, 'Moderate')
+  df['最終CA重症度'] = df['最終CA重症度'].mask(df['CA']>13, 'Severe')
+  df['最終CA重症度'] = df['最終CA重症度'].mask(df['CA']>17, 'Very severe')
 
-  df['最終CVAI重症度'] = '正常'
-  df['最終CVAI重症度'] = df['最終CVAI重症度'].mask(df['CVAI']>5, '軽症')
-  df['最終CVAI重症度'] = df['最終CVAI重症度'].mask(df['CVAI']>7, '中等症')
-  df['最終CVAI重症度'] = df['最終CVAI重症度'].mask(df['CVAI']>10, '重症')
-  df['最終CVAI重症度'] = df['最終CVAI重症度'].mask(df['CVAI']>14, '最重症')
+  df['最終CVAI重症度'] = 'Normal'
+  df['最終CVAI重症度'] = df['最終CVAI重症度'].mask(df['CVAI']>5, 'Mild')
+  df['最終CVAI重症度'] = df['最終CVAI重症度'].mask(df['CVAI']>7, 'Moderate')
+  df['最終CVAI重症度'] = df['最終CVAI重症度'].mask(df['CVAI']>10, 'Severe')
+  df['最終CVAI重症度'] = df['最終CVAI重症度'].mask(df['CVAI']>14, 'Very severe')
 
   df['最終短頭症'] = ''
-  df['最終短頭症'] = df['最終短頭症'].mask(df['短頭率']>126, '長頭')
-  df['最終短頭症'] = df['最終短頭症'].mask(df['短頭率']<=126, '正常')
-  df['最終短頭症'] = df['最終短頭症'].mask(df['短頭率']<106, '軽症')
-  df['最終短頭症'] = df['最終短頭症'].mask(df['短頭率']<103, '中等症')
-  df['最終短頭症'] = df['最終短頭症'].mask(df['短頭率']<100, '重症')
+  df['最終短頭症'] = df['最終短頭症'].mask(df['短頭率']>126, 'Scaphocephaly')
+  df['最終短頭症'] = df['最終短頭症'].mask(df['短頭率']<=126, 'Normal')
+  df['最終短頭症'] = df['最終短頭症'].mask(df['短頭率']<106, 'Mild')
+  df['最終短頭症'] = df['最終短頭症'].mask(df['短頭率']<103, 'Moderate')
+  df['最終短頭症'] = df['最終短頭症'].mask(df['短頭率']<100, 'Severe')
 
   return(df)
 
@@ -133,7 +136,7 @@ df_period = df_tx_post[['ダミーID', '治療期間']]
 df_tx_pre_last['治療期間'] = 0
 
 #df_tx_post = pd.merge(df_tx_post, df_tx_pre_last[['ダミーID']+list(category_orders.keys())], on='ダミーID', how='left')
-df_tx_post = pd.merge(df_tx_post, df_tx_pre_last[['ダミーID','治療前PSRレベル', '治療前ASRレベル', '治療前短頭症', '治療前CA重症度', '治療前CVAI重症度']], on='ダミーID', how='left')
+df_tx_post = pd.merge(df_tx_post, df_tx_pre_last[['ダミーID','PSR level before tx', 'ASR level before tx', 'Brachycephaly severity before tx', 'CA severity before tx', 'CVAI severity before tx']], on='ダミーID', how='left')
 
 df_tx_pre_post = pd.concat([df_tx_pre_last, df_tx_post])
 
@@ -148,7 +151,7 @@ df_tx_pre_post = pd.merge(df_tx_pre_post, df_tx_post_last[['ダミーID','最終
 #経過観察
 df_first = add_pre_levels(df_first)
 #df_pre_age = df_first[['ダミーID', '月齢']+list(category_orders.keys())]
-df_pre_age = df_first[['ダミーID', '月齢', '治療前PSRレベル', '治療前ASRレベル', '治療前短頭症', '治療前CA重症度', '治療前CVAI重症度']]
+df_pre_age = df_first[['ダミーID', '月齢', 'PSR level before tx', 'ASR level before tx', 'Brachycephaly severity before tx', 'CA severity before tx', 'CVAI severity before tx']]
 df_pre_age = df_pre_age.rename(columns = {'月齢':'治療前月齢'})
 
 df_co = pd.merge(df, df_pre_age, on='ダミーID', how='left')
@@ -171,14 +174,14 @@ df_co['ダミーID'] = df_co['ダミーID'] + 'C'
 
 df_tx_pre_post = pd.concat([df_tx_pre_post, df_co])
 
-df_tx_pre_post['治療前の月齢'] = df_tx_pre_post['治療前月齢'].apply(lambda x: np.floor(x) if pd.notnull(x) else np.nan)
+df_tx_pre_post['age before tx'] = df_tx_pre_post['治療前月齢'].apply(lambda x: np.floor(x) if pd.notnull(x) else np.nan)
 
-df_co['治療前の月齢'] = df_co['治療前月齢'].apply(lambda x: np.floor(x) if pd.notnull(x) else np.nan)
+df_co['age before tx'] = df_co['治療前月齢'].apply(lambda x: np.floor(x) if pd.notnull(x) else np.nan)
 
 df_co = add_post_levels(df_co)
 
 # Streamlitアプリのページ設定
-st.set_page_config(page_title='位置的頭蓋変形に関するデータの可視化', page_icon="📊", layout='wide')
+st.set_page_config(page_title='Visualization of data on positional head deformity', page_icon="📊", layout='wide')
 
 #治療率ありでパラメータごとにヒストグラムを作成（go.Barを利用）
 def hist(parameter='短頭率', df_first=df_first):
@@ -220,8 +223,8 @@ def hist(parameter='短頭率', df_first=df_first):
 
   y=[0, max(all)]
 
-  fig = go.Figure(go.Bar(x=x, y=treated, name='治療あり', marker_color='blue')) #opacity=0.8
-  fig.add_trace(go.Bar(x=x, y=untreated, name='治療なし',  marker_color='cyan', text=tx_rates)) #opacity=0.4
+  fig = go.Figure(go.Bar(x=x, y=treated, name='treated', marker_color='blue')) #opacity=0.8
+  fig.add_trace(go.Bar(x=x, y=untreated, name='not treated',  marker_color='cyan', text=tx_rates)) #opacity=0.4
   fig.update_traces(textfont_size=12, textfont_color='black',
                     #textangle=0,
                     textposition="outside", cliponaxis=False)
@@ -258,9 +261,10 @@ def hist(parameter='短頭率', df_first=df_first):
 
   fig.update_layout(width=1600, height=900,
       plot_bgcolor='white',
-      title_text=parameter+'の分布（全'+all_number+'人で'+str(tx_rate)+'％が治療）',
-      xaxis_title_text=parameter,
-      yaxis_title_text='人数',
+      # title_text=parameter+'の分布（全'+all_number+'人で'+str(tx_rate)+'％が治療）',
+      title_text= 'Distribution of ' + en_parameter[parameter] + ' (' + str(tx_rate) + '％ treated in ' + all_number + ' patients',
+      xaxis_title_text=en_parameter[parameter],
+      yaxis_title_text='Number of patients',
       barmode='stack'
       )
 
@@ -274,9 +278,22 @@ def show_helmet_proportion():
   counts = df_h['ヘルメット'].value_counts().reset_index()
   counts.columns = ['ヘルメット', '数']
 
+  # ラベルのマッピングを定義
+  label_map = {
+      'クルム': 'Qurum',
+      'アイメット': 'Aimet',
+      'クルムフィット': 'Qurum Fit'
+  }
+
   # 円グラフ作成
-  fig = px.pie(counts, names='ヘルメット', values='数', color_discrete_sequence=colors)
-  fig.update_layout(width=900, title='ヘルメットの種類の内訳')
+  fig = px.pie(counts, names='ヘルメット', values='数', color_discrete_sequence=colors,labels={'ヘルメット': 'Helmet Type'})
+
+  # 凡例のラベルを更新
+  fig.update_traces(
+      labels=[label_map.get(name, name) for name in counts['ヘルメット']]
+  )
+  
+  fig.update_layout(width=900, title='Breakdown of helmet types')
 
   # Streamlitアプリにグラフを表示
   st.plotly_chart(fig)
@@ -472,7 +489,7 @@ def graham(df, parameter, border=False, x_limit=False):
   df_fig = df_fig.sort_values('月齢')  #不要？
   df_fig = df_fig.drop_duplicates('ダミーID', keep='last')
 
-  severities = {'後頭部対称率':'治療前PSRレベル', '前頭部対称率':'治療前ASRレベル', 'CA':'治療前CA重症度', 'CVAI':'治療前CVAI重症度', '短頭率':'治療前短頭症', 'CI':'治療前短頭症'}
+  severities = {'後頭部対称率':'PSR level before tx', '前頭部対称率':'ASR level before tx', 'CA':'CA severity before tx', 'CVAI':'CVAI severity before tx', '短頭率':'Brachycephaly severity before tx', 'CI':'Brachycephaly severity before tx'}
   severities = severities[parameter]
 
   parameter_names = {'後頭部対称率':'PSR', '前頭部対称率':'ASR', 'CA':'CA', 'CVAI':'CVAI', '短頭率':'BI', 'CI':'CI'}
@@ -968,7 +985,7 @@ def animate_BI_PSR(df0, df):
 
   df = df[~df['ダミーID'].isin(common_patients)]
 
-  fig = px.scatter(df, x='短頭率', y='後頭部対称率', color='治療前PSRレベル', symbol='治療前短頭症', facet_col = 'ヘルメット',
+  fig = px.scatter(df, x='短頭率', y='後頭部対称率', color='PSR level before tx', symbol='Brachycephaly severity before tx', facet_col = 'ヘルメット',
                    hover_data=['ダミーID', '治療期間', '治療前月齢', 'ヘルメット'] + parameters, category_orders=category_orders, animation_frame='治療ステータス', animation_group='ダミーID', color_discrete_sequence=colors)
   i=0
   for i in range(len(df['ヘルメット'].unique())):
@@ -992,12 +1009,69 @@ def animate_BI_PSR(df0, df):
 
   st.plotly_chart(fig)
 
-levels = {'短頭率':'治療前短頭症',
-          '前頭部対称率':'治療前ASRレベル',
-          'CA':'治療前CA重症度',
-          '後頭部対称率':'治療前PSRレベル',
-          'CVAI':'治療前CVAI重症度',
-          'CI':'治療前短頭症'}
+def animate_CI_PSR(df0, df):
+  colors = [
+    '#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#FF8C33', '#33FFF1', '#8C33FF', '#FF5733', '#57FF33', '#5733FF',
+    '#FF3357', '#33FFA1', '#FFA133', '#33FF8C', '#FF338C', '#8CFF33', '#A1FF33', '#338CFF', '#A133FF', '#33A1FF'
+  ]
+
+  #df0 = df.drop_duplicates('ダミーID', keep='first')
+
+  df1 = df.drop_duplicates('ダミーID', keep='last')
+
+  common_patients = set(df1['ダミーID'].unique()) & (set(df0['ダミーID'].unique()))
+
+  df = pd.concat([df0, df1])
+  df = df[df['ダミーID'].isin(common_patients)]
+
+  #複数のヘルメットを使用している患者を除外
+  df_helmet = df[df['ヘルメット'] != '経過観察']
+  helmet_counts = df_helmet.groupby('ダミーID')['ヘルメット'].nunique()
+  common_patients = helmet_counts[helmet_counts > 1].index.tolist()
+
+  df = df[~df['ダミーID'].isin(common_patients)]
+
+  # ヘルメット名のマッピング辞書
+  helmet_map = {
+      'クルム': 'Qurum',
+      'アイメット': 'Aimet',
+      'クルムフィット': 'Qurum Fit',
+      '経過観察': 'Observation'
+  }
+
+  fig = px.scatter(df, x='CI', y='後頭部対称率', color='PSR level before tx', symbol='Brachycephaly severity before tx', facet_col = 'ヘルメット',
+                   hover_data=['ダミーID', '治療期間', '治療前月齢', 'ヘルメット'] + parameters, category_orders=category_orders, animation_frame='治療ステータス', animation_group='ダミーID', color_discrete_sequence=colors)
+  i=0
+  for i in range(len(df['ヘルメット'].unique())):
+    #短頭率の正常範囲
+    fig.add_trace(go.Scatter(x=[80, 80], y=[df['後頭部対称率'].min(), 100], mode='lines', line=dict(color='gray', dash = 'dot'), name='lower limit of normal CI'), row=1, col=i+1)
+    fig.add_trace(go.Scatter(x=[94, 94], y=[df['後頭部対称率'].min(), 100], mode='lines', line=dict(color='gray', dash = 'dot'), name='upper limit of normal CI'), row=1, col=i+1)
+
+    #対称率の正常範囲
+    fig.add_trace(go.Scatter(x=[df['CI'].min(), df['CI'].max()], y=[90, 90], mode='lines', line=dict(color='gray', dash = 'dot'), name='lower limit of PSR level 1'), row=1, col=i+1)
+
+  fig.update_xaxes(range = [df['CI'].min()-2,df['CI'].max()+2])
+  fig.update_yaxes(range = [df['後頭部対称率'].min()-2,102])
+
+  #width = 800*(i+1)
+  width = 800*len(df['ヘルメット'].unique())
+
+  fig.update_layout(height=800, width=width, title='Changes in CI and PSR before and after treatment')
+
+  # for annotation in fig.layout.annotations:
+  #   annotation.text = annotation.text.split('=')[-1]
+
+  # アノテーションのテキストを更新
+  fig.for_each_annotation(lambda a: a.update(text=helmet_map.get(a.text.split('=')[1], a.text)))
+
+  st.plotly_chart(fig)
+
+levels = {'短頭率':'Brachycephaly severity before tx',
+          '前頭部対称率':'ASR level before tx',
+          'CA':'CA severity before tx',
+          '後頭部対称率':'PSR level before tx',
+          'CVAI':'CVAI severity before tx',
+          'CI':'Brachycephaly severity before tx'}
 
 borders = {'短頭率':[106, 106],
           '前頭部対称率':[90, 90],
@@ -1028,7 +1102,7 @@ def animate(parameter, df0, df):
 
   df = df[~df['ダミーID'].isin(common_patients)]
 
-  fig = px.scatter(df, x='月齢', y=parameter, color=levels[parameter], symbol = '治療前の月齢', facet_col = 'ヘルメット',
+  fig = px.scatter(df, x='月齢', y=parameter, color=levels[parameter], symbol = 'age before tx', facet_col = 'ヘルメット',
                    hover_data=['ダミーID', '治療期間', '治療前月齢', 'ヘルメット'] + parameters, category_orders=category_orders, animation_frame='治療ステータス', animation_group='ダミーID', color_discrete_sequence=colors)
   i=0
   for i in range(len(df['ヘルメット'].unique())):
@@ -1067,7 +1141,7 @@ def animate_hc(df0, df):
 
   df = df[~df['ダミーID'].isin(common_patients)]
 
-  fig = px.scatter(df, x='月齢', y='頭囲', symbol = '治療前の月齢', facet_col = 'ヘルメット',
+  fig = px.scatter(df, x='月齢', y='頭囲', symbol = 'age before tx', facet_col = 'ヘルメット',
                    hover_data=['ダミーID', '治療期間', '治療前月齢', 'ヘルメット'] + parameters, category_orders=category_orders, animation_frame='治療ステータス', animation_group='ダミーID', color_discrete_sequence=colors)
   i=0
   for i in range(len(df['ヘルメット'].unique())):
@@ -1094,11 +1168,11 @@ def animate_hc(df0, df):
 
 def line_plot(parameter, df):
   df_fig = df.copy()
-  if '治療前の月齢' not in df_fig.columns:
-    df_fig['初診時の月齢'] = df_fig['治療前月齢'].apply(lambda x: np.floor(x) if pd.notnull(x) else np.nan)
-    symbol = '初診時の月齢'
+  if 'age before tx' not in df_fig.columns:
+    df_fig['age at first'] = df_fig['治療前月齢'].apply(lambda x: np.floor(x) if pd.notnull(x) else np.nan)
+    symbol = 'age at first'
   else:
-    symbol = '治療前の月齢'
+    symbol = 'age before tx'
 
   too_young = df_fig[df_fig['月齢'] < 0]['ダミーID'].unique()
   df_fig = df_fig[~df_fig['ダミーID'].isin(too_young)]
@@ -1132,7 +1206,7 @@ def make_table(parameter, df, co = False):
   else:
     df_temp = df.copy()
   df_temp = df_temp.sort_values('月齢')
-  df_temp = df_temp[['ダミーID', '月齢', parameter, '治療前の月齢', levels[parameter], 'ヘルメット']]
+  df_temp = df_temp[['ダミーID', '月齢', parameter, 'age before tx', levels[parameter], 'ヘルメット']]
   df_before = df_temp.drop_duplicates('ダミーID', keep='first')
   df_before = df_before.rename(columns={parameter:'治療前'+parameter, '月齢':'治療前月齢'})
   df_before = df_before[['ダミーID', '治療前'+parameter, '治療前月齢']]
@@ -1150,7 +1224,7 @@ def make_table(parameter, df, co = False):
                                     ordered=True)
 
   # 指定した順序でgroupbyし、変化量に対して各種統計量を計算
-  result = df_before_after.groupby(['治療前の月齢', levels[parameter]], observed=False).agg(
+  result = df_before_after.groupby(['age before tx', levels[parameter]], observed=False).agg(
       mean=('変化量', 'mean'),
       std=('変化量', 'std'),
       count=('変化量', 'count'),
@@ -1177,17 +1251,19 @@ def make_table(parameter, df, co = False):
 
   # 結果表示
   #import ace_tools as tools; tools.display_dataframe_to_user(name="信頼区間を含む統計結果", dataframe=result)
-  result = result.rename(columns={'mean':'平均', 'std':'標準偏差', 'count':'人数', 'se':'標準誤差', 'min':'最小', 'max':'最大',
-                                  'mean_d':'平均治療期間', 'std_d':'標準偏差 ', 'se_d':'標準誤差 ', 'min_d':'最小 ', 'max_d':'最大 '})
+  result = result.rename(columns={'mean':'mean', 'std':'SD', 'count':'Number', 'se':'SE', 'min':'Min', 'max':'Max',
+                                  'mean_d':'Mean Period', 'std_d':'SD ', 'se_d':'SE ', 'min_d':'Min ', 'max_d':'Max '})
   result = result.replace(np.nan, '-')
-  result['95% 信頼区間'] = result['95% CI lower'].astype(str) + ' ～ ' + result['95% CI upper'].astype(str)
-  result['95% 信頼区間 '] = result['95% CI lower_d'].astype(str) + ' ～ ' + result['95% CI upper_d'].astype(str)
-  result = result[['平均', '95% 信頼区間', '標準偏差', '最小', '最大', '人数', '平均治療期間', '95% 信頼区間 ', '標準偏差 ', '最小 ', '最大 ']]
+  result['95% CI'] = result['95% CI lower'].astype(str) + ' ～ ' + result['95% CI upper'].astype(str)
+  result['95% CI '] = result['95% CI lower_d'].astype(str) + ' ～ ' + result['95% CI upper_d'].astype(str)
+  result = result[['Mean', '95% CI', 'SD', 'Min', 'Max', 'Number', 'Mean Period', '95% CI ', 'SD ', 'Min ', 'Max ']]
   result = result.reset_index()
-  result['治療前の月齢'] = result['治療前の月齢'].astype(int)
+  result['age before tx'] = result['age before tx'].astype(int)
 
-  if co:
-    result = result.rename(columns={levels[parameter]:'初診時'+parameter, '治療前の月齢':'初診時の月齢', '平均治療期間': '平均受診間隔'})
+  result.rename(columns={levels[parameter]:en_parameter[parameter]+' at first', 'age before tx':'Age at first', '平均治療期間': 'Average visit interval'})
+
+  # if co:
+    # result = result.rename(columns={levels[parameter]:'初診時'+parameter, 'age before tx':'age at first', '平均治療期間': '平均受診間隔'})
 
   return (result)
 
@@ -1218,19 +1294,21 @@ def make_confusion_matrix(df, parameter):
   df0 = df.drop_duplicates('ダミーID', keep='first').sort_values('ダミーID').reset_index(drop=True)
   df1 = df.drop_duplicates('ダミーID', keep='last').sort_values('ダミーID').reset_index(drop=True)
   df_delta = df0.copy()
-  df_delta['変化量'] = df1[parameter] - df0[parameter]
+  df_delta['Change'] = df1[parameter] - df0[parameter]
   
-  pivot_table_combined['変化量'] = df_delta.groupby("治療前" + parameter_category_name)['変化量'].mean().round(2).astype(str) + " ± " + df_delta.groupby("治療前" + parameter_category_name)['変化量'].std().round(2).astype(str)
+  pivot_table_combined['Change'] = df_delta.groupby("治療前" + parameter_category_name)['Change'].mean().round(2).astype(str) + " ± " + df_delta.groupby("治療前" + parameter_category_name)['Change'].std().round(2).astype(str)
   
-  pivot_table_combined = pivot_table_combined.reindex(index=order, columns=order + ["Total", "変化量"])
+  pivot_table_combined = pivot_table_combined.reindex(index=order, columns=order + ["Total", "Change"])
 
   pivot_table_combined = pivot_table_combined.fillna('0 (0.0%)')
+
+  pivot_table = pivot_table.rename_axis(parameter_category_name + ' before tx', axis=0)
 
   return(pivot_table_combined)
 
 ##関数パート終了
 
-st.markdown('<div style="text-align: left; color:black; font-size:36px; font-weight: bold;">位置的頭蓋変形の診療に関するデータビジュアライゼーション</div>', unsafe_allow_html=True)
+st.markdown('<div style="text-align: left; color:black; font-size:36px; font-weight: bold;">Data visualization for the treatment of positional head deformities</div>', unsafe_allow_html=True)
 
 from datetime import datetime, timedelta
 
@@ -1238,15 +1316,15 @@ from datetime import datetime, timedelta
 yesterday = datetime.now() - timedelta(days=1)
 
 # YYYY年MM月DD日形式でフォーマット
-formatted_date = yesterday.strftime("%Y年%m月%d日")
+formatted_date = yesterday.strftime("%B %-d, %Y") #.strftime("%Y年%m月%d日")
 
-st.markdown(f'<div style="text-align: left; color:black; font-size:18px;">以下のグラフは2021年03月04日から{formatted_date}までのデータにもとづいています</div>', unsafe_allow_html=True)
+st.markdown(f'<div style="text-align: left; color:black; font-size:18px;">The graph below is based on data from March 4, 2021 to {formatted_date}以下のグラフは2021年03月04日から{formatted_date}までのデータにもとづいています</div>', unsafe_allow_html=True)
 #st.write('以下のグラフは2021年03月04日から' + formatted_date + 'までのデータにもとづいています')
 
 st.write('')
 st.write('')
 st.markdown("---")
-st.markdown('<div style="text-align: left; color:black; font-size:24px; font-weight: bold;">受診患者の重症度の分布および矯正治療を受けた割合</div>', unsafe_allow_html=True)
+st.markdown('<div style="text-align: left; color:black; font-size:24px; font-weight: bold;">Distribution of severity of patients and percentage of patients who received helmet therapy</div>', unsafe_allow_html=True)
 
 parameters = ['短頭率', '前頭部対称率', '後頭部対称率', 'CA', 'CVAI', 'CI']
 
@@ -1257,8 +1335,8 @@ for parameter in parameters:
 show_helmet_proportion()
 st.markdown("---")
 
-st.markdown('<div style="text-align: left; color:black; font-size:24px; font-weight: bold;">月齢・重症度別の治療前後の変化</div>', unsafe_allow_html=True)
-st.write('以下のグラフと表は全てのヘルメットを合わせたものです')
+st.markdown('<div style="text-align: left; color:black; font-size:24px; font-weight: bold;">Changes before and after treatment by age and severity</div>', unsafe_allow_html=True)
+st.write('The graphs and tables below are for all helmets combined.')
 
 table_members = df_tx_pre_post[df_tx_pre_post['治療期間'] > 1]['ダミーID'].unique()
 df_table = df_tx_pre_post[df_tx_pre_post['ダミーID'].isin(table_members)]
@@ -1266,7 +1344,8 @@ df_table = df_tx_pre_post[df_tx_pre_post['ダミーID'].isin(table_members)]
 for parameter in parameters:
   st.write('')
   st.write('')
-  st.write(parameter+'の治療前後の変化（1か月以上の治療）')
+  # st.write(parameter+'の治療前後の変化（1か月以上の治療）')
+  st.write('Change in ' en_parameter[parameter] +' before and after treatment (treatment for 1 month or more)')
   graham(df_table, parameter)
 
   result = make_confusion_matrix(df_table, parameter)
@@ -1279,7 +1358,8 @@ for parameter in parameters:
 
 st.write('')
 st.write('')
-st.write('頭囲の治療前後の変化（1か月以上の治療）')
+# st.write('頭囲の治療前後の変化（1か月以上の治療）')
+st.write('Change in ' en_parameter['頭囲'] +' before and after treatment (treatment for 1 month or more)')
 graham_hc(df_table)
 
 #result = make_table('頭囲', df_table)
@@ -1292,18 +1372,18 @@ st.markdown("---")
 #st.table(df_vis)
 
 with st.form(key='filter_form'):
-  st.write('患者を絞ってグラフを作成します')
+  st.write('Create a graph by filtering the patients')
 
   # スライダーで範囲を指定
   min_age, max_age = st.slider(
-      '月齢の範囲を選択してください',
+      'Please select age range',
       min_value = max([int(df_tx_pre_post['治療前月齢'].min()),1]),
       max_value = int(df_tx_pre_post['治療前月齢'].max()),
       value=( max([int(df_tx_pre_post['治療前月齢'].min()),1]), int(df_tx_pre_post['治療前月齢'].max()))
   )
 
   min_value, max_value = st.slider(
-      '治療期間（治療前スキャン〜治療後スキャンの間隔）の範囲を選択してください',
+      'Select the treatment period (interval between pre-treatment and post-treatment scans) range',
       min_value = max([int(df_tx_pre_post['治療期間'].min()),1]),
       #max_value = int(df_tx_pre_post['治療期間'].max()),
       max_value = 12,
@@ -1311,23 +1391,23 @@ with st.form(key='filter_form'):
       value=(max([int(df_tx_pre_post['治療期間'].min()),1]), 12)
   )
 
-  st.write('ヘルメットを選択してください（複数選択可）')
+  st.write('Please select a helmet (multiple selections possible)')
 
   # チェックボックスを作成
-  filter_pass0 = st.checkbox('アイメット')
-  filter_pass1 = st.checkbox('クルム')
-  filter_pass2 = st.checkbox('クルムフィット')
-  filter_pass3 = st.checkbox('経過観察')
+  filter_pass0 = st.checkbox('Aimet')
+  filter_pass1 = st.checkbox('Qurum')
+  filter_pass2 = st.checkbox('Qurum Fit')
+  filter_pass3 = st.checkbox('Observation')
 
-  submit_button = st.form_submit_button(label='実行')
+  submit_button = st.form_submit_button(label='Run')
 
 # 「実行」ボタンを作成
 #if st.button('実行'):
 if submit_button:
   if not filter_pass0 and not filter_pass1 and not filter_pass2 and not filter_pass3:
-    st.write('一つ以上のチェックボックスを選択してください')
+    st.write('Please select one or more checkboxes')
   else:
-    st.write('選択された治療期間（治療前スキャン〜治療後スキャンの間隔）：', str(min_value), "〜", str(max_value), "か月")
+    st.write('The chosen treatment period (interval between pre-treatment and post-treatment scans)：', str(min_value), "〜", str(max_value), "か月")
     
     filtered_df = df_tx_pre_post[df_tx_pre_post['治療ステータス'] == '治療後']
         # スライダーで選択された範囲でデータをフィルタリング
@@ -1371,8 +1451,8 @@ if submit_button:
     filtered_df0 = filtered_df0[filtered_df0['ダミーID'].isin(filtered_treated_patients)]
 
 
-    st.write('▶を押すと治療前後の変化が見られます。')
-    animate_BI_PSR(filtered_df0, filtered_df)
+    st.write('Click ▶ to see the changes before and after treatment.')
+    animate_CI_PSR(filtered_df0, filtered_df)
     st.markdown("---")
 
     animate_hc(filtered_df0, filtered_df)
@@ -1384,7 +1464,7 @@ if submit_button:
 
     if (min_age != 1) | (max_age != 13):
       st.markdown("---")
-      st.write('対象を制限した場合のヒストグラムを表示します')
+      st.write('Displays a histogram when the target is filtered')
       for parameter in parameters:
         hist(parameter, filtered_df_first)
         st.markdown("---")
@@ -1397,7 +1477,8 @@ if submit_button:
         count = len(filtered_df_tx_pre_post['ダミーID'].unique())
         st.write('')
         st.write('')
-        st.write(parameter+'の治療前後の変化　', str(count), '人')
+        # st.write(parameter+'の治療前後の変化　', str(count), '人')
+        st.write('Change in ' en_parameter[parameter] +' before and after treatment (' + str(count) + ' patients')
         graham(filtered_df_tx_pre_post, parameter, x_limit=max_value)
         result = make_confusion_matrix(filtered_df_tx_pre_post, parameter)
         st.dataframe(result, width=800)
@@ -1410,7 +1491,8 @@ if submit_button:
           count = len(filtered_df_helmet['ダミーID'].unique())
           st.write('')
           st.write('')
-          st.write(parameter+'の治療前後の変化(アイメット)　', str(count), '人')
+          # st.write(parameter+'の治療前後の変化(アイメット)　', str(count), '人')
+          st.write('Change in ' en_parameter[parameter] +' before and after treatment (Aimet, ' + str(count) + ' patients')
           graham(filtered_df_helmet, parameter, x_limit=max_value)
           result = make_confusion_matrix(filtered_df_helmet, parameter)
           st.dataframe(result, width=800)
@@ -1423,7 +1505,8 @@ if submit_button:
           count = len(filtered_df_helmet['ダミーID'].unique())
           st.write('')
           st.write('')
-          st.write(parameter+'の治療前後の変化(クルム)　', str(count), '人')
+          # st.write(parameter+'の治療前後の変化(クルム)　', str(count), '人')
+          st.write('Change in ' en_parameter[parameter] +' before and after treatment (Qurum, ' + str(count) + ' patients')
           graham(filtered_df_helmet, parameter, x_limit=max_value)
           result = make_confusion_matrix(filtered_df_helmet, parameter)
           st.dataframe(result, width=800)
@@ -1436,7 +1519,8 @@ if submit_button:
           count = len(filtered_df_helmet['ダミーID'].unique())
           st.write('')
           st.write('')
-          st.write(parameter+'の治療前後の変化(クルムフィット)　', str(count), '人')
+          # st.write(parameter+'の治療前後の変化(クルムフィット)　', str(count), '人')
+          st.write('Change in ' en_parameter[parameter] +' before and after treatment (Qurum Fit, ' + str(count) + ' patients')
           graham(filtered_df_helmet, parameter, x_limit=max_value)
           result = make_confusion_matrix(filtered_df_helmet, parameter)
           st.dataframe(result, width=800)
@@ -1447,7 +1531,8 @@ if submit_button:
       count = len(filtered_df_tx_pre_post['ダミーID'].unique())
       st.write('')
       st.write('')
-      st.write('頭囲の治療前後の変化　', str(count), '人')
+      # st.write('頭囲の治療前後の変化　', str(count), '人')
+      st.write('Change in ' en_parameter['頭囲'] +' before and after treatment (' + str(count) + ' patients')
       graham_hc(filtered_df_tx_pre_post, x_limit=max_value)
       #result = make_table(parameter, filtered_df_tx_pre_post)
       #st.dataframe(result, width=800)
@@ -1458,7 +1543,8 @@ if submit_button:
         count = len(filtered_df_helmet['ダミーID'].unique())
         st.write('')
         st.write('')
-        st.write('頭囲の治療前後の変化(アイメット)　', str(count), '人')
+        # st.write('頭囲の治療前後の変化(アイメット)　', str(count), '人')
+        st.write('Change in ' en_parameter['頭囲'] +' before and after treatment (Aimet, ' + str(count) + ' patients')
         graham_hc(filtered_df_helmet, x_limit=max_value)
         #result = make_table('頭囲', filtered_df_helmet)
         #st.dataframe(result, width=800)
@@ -1469,7 +1555,8 @@ if submit_button:
         count = len(filtered_df_helmet['ダミーID'].unique())
         st.write('')
         st.write('')
-        st.write('頭囲の治療前後の変化(クルム)　', str(count), '人')
+        # st.write('頭囲の治療前後の変化(クルム)　', str(count), '人')
+        st.write('Change in ' en_parameter['頭囲'] +' before and after treatment (Qurum, ' + str(count) + ' patients')
         graham_hc(filtered_df_helmet, x_limit=max_value)
         #result = make_table('頭囲', filtered_df_helmet)
         #st.dataframe(result, width=800)
@@ -1480,14 +1567,16 @@ if submit_button:
         count = len(filtered_df_helmet['ダミーID'].unique())
         st.write('')
         st.write('')
-        st.write('頭囲の治療前後の変化(クルムフィット)　', str(count), '人')
+        # st.write('頭囲の治療前後の変化(クルムフィット)　', str(count), '人')
+        st.write('Change in ' en_parameter['頭囲'] +' before and after treatment (Qurum Fit, ' + str(count) + ' patients')
         graham_hc(filtered_df_helmet, x_limit=max_value)
         #result = make_table('頭囲', filtered_df_helmet)
         #st.dataframe(result, width=800)
         st.markdown("---")
     
     if filter_pass3:
-      st.write('経過観察した場合のグラフを表示します')
+      # st.write('経過観察した場合のグラフを表示します')
+      st.write('Displays a graph of the progress of the observation')
       count = len(filtered_df_co['ダミーID'].unique())
       st.write(str(count), '人')
       #st.dataframe(filtered_df_co, width=800)
@@ -1520,4 +1609,5 @@ if submit_button:
     #st.dataframe(df_vis)
     #st.table(df_vis)
 else:
-    st.write('実行ボタンを押すとグラフが作成されます')
+    # st.write('実行ボタンを押すとグラフが作成されます')
+    st.write('Click the Run button to create a graph')
