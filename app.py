@@ -741,7 +741,8 @@ def graham(df, parameter, border=False, x_limit=False):
   fig.update_yaxes(gridcolor='lightgray')
 
   #return(fig)
-  st.plotly_chart(fig)
+  # st.plotly_chart(fig)
+  st.plotly_chart(fig, key=f"plot_{parameter}_{border}_{x_limit}")
 
 def graham_hc(df, border=False, x_limit=False):
   fig = make_subplots(
@@ -1563,7 +1564,7 @@ if submit_button:
           st.write('')
           st.write('')
           # st.write(parameter+'の治療前後の変化(アイメット)　', str(count), '人')
-          st.write('Change in ' + en_parameter[parameter] +' before and after treatment (Aimet, ' + str(count) + ' patients')
+          st.write('Change in ' + en_parameter[parameter] +' before and after treatment (Aimet, ' + str(count) + ' patients)')
           graham(filtered_df_helmet, parameter, x_limit=max_value)
           result = make_confusion_matrix(filtered_df_helmet, parameter)
           st.dataframe(result, width=800)
@@ -1577,7 +1578,7 @@ if submit_button:
           st.write('')
           st.write('')
           # st.write(parameter+'の治療前後の変化(クルム)　', str(count), '人')
-          st.write('Change in ' + en_parameter[parameter] +' before and after treatment (Qurum, ' + str(count) + ' patients')
+          st.write('Change in ' + en_parameter[parameter] +' before and after treatment (Qurum, ' + str(count) + ' patients)')
           graham(filtered_df_helmet, parameter, x_limit=max_value)
           result = make_confusion_matrix(filtered_df_helmet, parameter)
           st.dataframe(result, width=800)
@@ -1591,8 +1592,8 @@ if submit_button:
           st.write('')
           st.write('')
           # st.write(parameter+'の治療前後の変化(クルムフィット)　', str(count), '人')
-          st.write('Change in ' + en_parameter[parameter] +' before and after treatment (Qurum Fit, ' + str(count) + ' patients')
-          graham(filtered_df_helmet, parameter, x_limit=max_value)
+          st.write('Change in ' + en_parameter[parameter] +' before and after treatment (Qurum Fit, ' + str(count) + ' patients)')
+          graham(filtered_df_helmet, parameter, x_limit=max_value)  #key
           result = make_confusion_matrix(filtered_df_helmet, parameter)
           st.dataframe(result, width=800)
           result = make_table(parameter, filtered_df_helmet)
