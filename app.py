@@ -744,7 +744,7 @@ def graham(df, parameter, border=False, x_limit=False):
   # st.plotly_chart(fig)
   # st.plotly_chart(fig, key=f"plot_{parameter}_{border}_{x_limit}")
   import uuid
-  st.plotly_chart(fig, key="uuid.uuid4()")
+  st.plotly_chart(fig, key=str(uuid.uuid4()))
 
 def graham_hc(df, border=False, x_limit=False):
   fig = make_subplots(
