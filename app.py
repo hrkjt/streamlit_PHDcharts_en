@@ -742,7 +742,9 @@ def graham(df, parameter, border=False, x_limit=False):
 
   #return(fig)
   # st.plotly_chart(fig)
-  st.plotly_chart(fig, key=f"plot_{parameter}_{border}_{x_limit}")
+  # st.plotly_chart(fig, key=f"plot_{parameter}_{border}_{x_limit}")
+  import uuid
+  st.plotly_chart(fig, key="uuid.uuid4()")
 
 def graham_hc(df, border=False, x_limit=False):
   fig = make_subplots(
@@ -1546,17 +1548,19 @@ if submit_button:
     
     if filter_pass0 | filter_pass1 | filter_pass2:
       for parameter in parameters:
-        count = len(filtered_df_tx_pre_post['ダミーID'].unique())
-        st.write('')
-        st.write('')
-        # st.write(parameter+'の治療前後の変化　', str(count), '人')
-        st.write('Change in ' + en_parameter[parameter] +' before and after treatment (' + str(count) + ' patients)')
-        graham(filtered_df_tx_pre_post, parameter, x_limit=max_value)
-        result = make_confusion_matrix(filtered_df_tx_pre_post, parameter)
-        st.dataframe(result, width=800)
-        result = make_table(parameter, filtered_df_tx_pre_post)
-        st.dataframe(result, width=800)
-        st.markdown("---")
+
+        if filter_pass0 + filter_pass1 + filter_pass2 + filter_pass3 > 1:
+          count = len(filtered_df_tx_pre_post['ダミーID'].unique())
+          st.write('')
+          st.write('')
+          # st.write(parameter+'の治療前後の変化　', str(count), '人')
+          st.write('Change in ' + en_parameter[parameter] +' before and after treatment (' + str(count) + ' patients)')
+          graham(filtered_df_tx_pre_post, parameter, x_limit=max_value)
+          result = make_confusion_matrix(filtered_df_tx_pre_post, parameter)
+          st.dataframe(result, width=800)
+          result = make_table(parameter, filtered_df_tx_pre_post)
+          st.dataframe(result, width=800)
+          st.markdown("---")
 
         if filter_pass0:
           filtered_df_helmet = filtered_df_tx_pre_post[filtered_df_tx_pre_post['ヘルメット'] == 'アイメット']
