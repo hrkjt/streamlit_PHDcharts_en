@@ -1546,6 +1546,8 @@ if submit_button:
 
     filtered_treated_patients = filtered_df_tx_pre_post[filtered_df_tx_pre_post['治療ステータス'] == '治療後']['ダミーID'].unique()
     filtered_df_tx_pre_post = filtered_df_tx_pre_post[filtered_df_tx_pre_post['ダミーID'].isin(filtered_treated_patients)]
+
+    max_value = filtered_df_tx_pre_post['治療期間'].max()
     
     if filter_pass0 | filter_pass1 | filter_pass2:
       for parameter in parameters:
