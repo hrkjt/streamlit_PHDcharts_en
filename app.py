@@ -1401,6 +1401,9 @@ st.write('')
 st.markdown("---")
 st.markdown('<div style="text-align: left; color:black; font-size:24px; font-weight: bold;">Distribution of severity of patients and percentage of patients who received helmet therapy</div>', unsafe_allow_html=True)
 
+hist('月齢')
+st.markdown("---")
+
 parameters = ['短頭率', '前頭部対称率', '後頭部対称率', 'CA', 'CVAI', 'CI']
 
 for parameter in parameters:
