@@ -271,6 +271,71 @@ def hist(parameter='短頭率', df_first=df_first):
 
   st.plotly_chart(fig)
 
+def compute_shape_proportions(df_first,
+                              plagio_metric='CVAI',
+                              plagio_threshold='mild',
+                              use_CI=True):
+    """
+    df_first（治療前・初診の一意ID行）から、
+    Plagio / Brachy / Dolicho / Normal を重複なく1分類で集計し割合を返す。
+
+    plagio_threshold: 'mild'|'moderate'|'severe'|'very severe'
+      - CVAI基準:  mild>=5, moderate>=7, severe>=10, very severe>=14
+      - CA基準:    mild>6,  moderate>9, severe>13, very severe>17
+    use_CI: Trueなら CI（<=78 dolicho, >=95 brachy）を使う
+            Falseなら BI（短頭率）を使う（※必要なら切替）
+    """
+    df0 = df_first.copy()
+
+    # -------- 斜頭症の閾値設定 --------
+    if plagio_metric == 'CVAI':
+        th_map = {'mild': 5, 'moderate': 7, 'severe': 10, 'very severe': 14}
+        th = th_map.get(plagio_threshold, 5)
+        plagio_flag = df0['CVAI'] >= th
+        metric_label = f"CVAI ≥ {th}"
+    else:  # 'CA'
+        th_map = {'mild': 6, 'moderate': 9, 'severe': 13, 'very severe': 17}
+        th = th_map.get(plagio_threshold, 6)
+        plagio_flag = df0['CA'] > th
+        metric_label = f"CA > {th}"
+
+    # -------- 短頭・長頭の閾値設定 --------
+    if use_CI:
+        brachy_flag  = df0['CI'] >= 95
+        dolicho_flag = df0['CI'] <= 78
+        head_shape_basis = "CI (brachy≥95, dolicho≤78)"
+    else:
+        # BI（短頭率）での定義例：>126 long(dolicho), <106 brachy
+        # ※既存のBI分類と整合（takamatsu定義）に寄せたい場合に切替
+        brachy_flag  = df0['短頭率'] < 106
+        dolicho_flag = df0['短頭率'] > 126
+        head_shape_basis = "BI (brachy<106, dolicho>126)"
+
+    # -------- 主たる分類（重複排除の優先順） --------
+    shape = pd.Series('Normal', index=df0.index)
+    shape[ dolicho_flag] = 'Dolichocephaly'
+    shape[ brachy_flag ] = 'Brachycephaly'
+    shape[ plagio_flag ] = 'Plagiocephaly'   # 最優先で上書き
+
+    # -------- 集計 --------
+    counts = shape.value_counts().reindex(['Plagiocephaly','Brachycephaly','Dolichocephaly','Normal'], fill_value=0)
+    total = counts.sum()
+    props = (counts / total * 100).round(1)
+
+    out = pd.DataFrame({
+        'Category': counts.index,
+        'Count': counts.values,
+        'Percent': props.values
+    })
+
+    meta = {
+        'plagio_rule': f"{plagio_metric} threshold = {metric_label}",
+        'head_shape_rule': head_shape_basis,
+        'N': int(total)
+    }
+    return out, meta
+
+
 def show_helmet_proportion():
   # 色をカスタマイズ
   colors = ['red', 'green', 'blue']
@@ -1410,6 +1475,35 @@ parameters = ['短頭率', '前頭部対称率', '後頭部対称率', 'CA', 'CV
 for parameter in parameters:
   hist(parameter)
   st.markdown("---")
+
+# ==== 形状割合セクション ====
+st.markdown("---")
+st.markdown('<div style="text-align: left; color:black; font-size:24px; font-weight: bold;">Proportions of plagiocephaly / brachycephaly / dolichocephaly (at first visit)</div>', unsafe_allow_html=True)
+
+col1, col2, col3 = st.columns(3)
+with col1:
+    plagio_metric = st.selectbox('Plagio metric', ['CVAI','CA'], index=0)
+with col2:
+    # 既定はMild以上
+    p_levels = ['mild','moderate','severe','very severe']
+    plagio_threshold = st.selectbox('Threshold (plagio)', p_levels, index=0)
+with col3:
+    # CIでの短頭・長頭判定を既定True（既存の可視化と整合）
+    use_CI = st.selectbox('Head shape basis', ['CI','BI'], index=0) == 'CI'
+
+shape_df, shape_meta = compute_shape_proportions(df_first, plagio_metric=plagio_metric,
+                                                 plagio_threshold=plagio_threshold,
+                                                 use_CI=use_CI)
+
+# 表示（表＋円グラフ）
+st.dataframe(shape_df, use_container_width=True)
+
+fig_shape = px.pie(shape_df, names='Category', values='Count',
+                   title=f"Head-shape distribution (N={shape_meta['N']})",
+                   hole=0.35)
+st.plotly_chart(fig_shape, use_container_width=True)
+
+st.caption(f"Plagio rule: {shape_meta['plagio_rule']} / Head-shape rule: {shape_meta['head_shape_rule']}")
 
 show_helmet_proportion()
 st.markdown("---")
