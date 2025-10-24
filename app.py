@@ -1584,14 +1584,35 @@ for parameter in parameters:
       '</div>', unsafe_allow_html=True
   )
   
+  # もしこのブロックが for ループ内にあるなら、parameter を使って key をユニーク化する
+  # 例: key_suffix = parameter
+  # ループ外に出せるなら key は不要です（そのままでもOK）
+  
+  key_suffix = parameter if 'parameter' in locals() else 'global'
+  
   col1, col2, col3 = st.columns(3)
   with col1:
-      plagio_metric = st.selectbox('Plagio metric', ['CVAI','CA'], index=0)
+      plagio_metric = st.selectbox(
+          'Plagio metric',
+          ['CVAI','CA'],
+          index=0,
+          key=f'plagio_metric_{key_suffix}'
+      )
   with col2:
-      p_levels = ['mild','moderate','severe','very severe']  # 既定はMild以上
-      plagio_threshold = st.selectbox('Threshold (plagio)', p_levels, index=0)
+      p_levels = ['mild','moderate','severe','very severe']
+      plagio_threshold = st.selectbox(
+          'Threshold (plagio)',
+          p_levels,
+          index=0,
+          key=f'plagio_th_{key_suffix}'
+      )
   with col3:
-      use_CI = st.selectbox('Head shape basis', ['CI','BI'], index=0) == 'CI'  # 既定: CI
+      use_CI = st.selectbox(
+          'Head shape basis',
+          ['CI','BI'],
+          index=0,
+          key=f'head_basis_{key_suffix}'
+      ) == 'CI'
   
   shape6_df, shape_meta = compute_shape_proportions6(
       df_first,
@@ -1600,7 +1621,6 @@ for parameter in parameters:
       use_CI=use_CI
   )
   
-  # 円グラフ（カテゴリの順序は関数内 order に準拠）
   fig_shape = px.pie(
       shape6_df, names='Category', values='Count',
       title=f"Head-shape mix (N={shape_meta['N']}) — {shape_meta['plagio_rule']}, {shape_meta['head_shape_rule']}"
@@ -1608,8 +1628,8 @@ for parameter in parameters:
   fig_shape.update_layout(width=900, height=600)
   st.plotly_chart(fig_shape)
   
-  # 表（人数と割合）
-  st.dataframe(shape6_df)
+  st.dataframe(shape6_df, use_container_width=True, key=f'shape6_table_{key_suffix}')
+
 
   
   show_helmet_proportion()
