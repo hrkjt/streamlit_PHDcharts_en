@@ -1447,6 +1447,77 @@ def make_confusion_matrix(df, parameter):
 
   return(pivot_table_combined)
 
+def compute_shape_proportions6(df_first,
+                               plagio_metric='CVAI',
+                               plagio_threshold='mild',
+                               use_CI=True):
+    """
+    初診一意ID行 df_first を 6分類で集計:
+      Normal, Plagiocephaly, Brachycephaly, Dolichocephaly, Plagio+Brachy, Plagio+Dolicho
+
+    plagio_metric: 'CVAI' | 'CA'
+      - CVAI閾値:  mild>=5, moderate>=7, severe>=10, very severe>=14
+      - CA閾値:    mild>6,  moderate>9, severe>13, very severe>17
+    use_CI: True  -> CIで短頭/長頭判定（brachy >=95, dolicho <=78）
+            False -> BI（短頭率）で判定（brachy <106, dolicho >126）
+    """
+    df0 = df_first.copy()
+
+    # --- 斜頭フラグ ---
+    if plagio_metric == 'CVAI':
+        th_map = {'mild': 5, 'moderate': 7, 'severe': 10, 'very severe': 14}
+        th = th_map.get(plagio_threshold, 5)
+        plagio = df0['CVAI'] >= th
+        metric_label = f"CVAI ≥ {th}"
+    else:  # 'CA'
+        th_map = {'mild': 6, 'moderate': 9, 'severe': 13, 'very severe': 17}
+        th = th_map.get(plagio_threshold, 6)
+        plagio = df0['CA'] > th
+        metric_label = f"CA > {th}"
+
+    # --- 短頭/長頭フラグ ---
+    if use_CI:
+        brachy  = df0['CI'] >= 95
+        dolicho = df0['CI'] <= 78
+        head_shape_basis = "CI (brachy≥95, dolicho≤78)"
+    else:
+        # BI（短頭率）での定義例（既存コードの閾値に準拠）
+        brachy  = df0['短頭率'] < 106
+        dolicho = df0['短頭率'] > 126
+        head_shape_basis = "BI (brachy<106, dolicho>126)"
+
+    # --- 6カテゴリ割当（重複を許容） ---
+    cat = pd.Series('Normal', index=df0.index)
+
+    # 先に複合を決める（brachy と dolicho が同時に真になるケースは実質想定外だが防御的に処理）
+    cat[plagio & brachy & ~dolicho]  = 'Plagio + Brachycephaly'
+    cat[plagio & dolicho & ~brachy]  = 'Plagio + Dolichocephaly'
+    # もし両方（brachy & dolicho）が真なら斜頭優先で「Plagio」を付けた上で長頭優先に倒す（好みで調整可）
+    cat[plagio & brachy & dolicho]   = 'Plagio + Dolichocephaly'
+
+    # 単独カテゴリ
+    cat[(~plagio) & brachy & (~dolicho)]  = 'Brachycephaly'
+    cat[(~plagio) & (~brachy) & dolicho]  = 'Dolichocephaly'
+    cat[plagio & (~brachy) & (~dolicho)]  = 'Plagiocephaly'
+    # 残りは 'Normal' のまま
+
+    # --- 集計 ---
+    order = ['Plagiocephaly', 'Brachycephaly', 'Dolichocephaly',
+             'Plagio + Brachycephaly', 'Plagio + Dolichocephaly', 'Normal']
+    counts = cat.value_counts().reindex(order, fill_value=0)
+    total  = counts.sum()
+    perc   = (counts / total * 100).round(1)
+
+    out = pd.DataFrame({'Category': counts.index,
+                        'Count': counts.values,
+                        'Percent': perc.values})
+
+    meta = {'plagio_rule': f"{plagio_metric} threshold = {metric_label}",
+            'head_shape_rule': head_shape_basis,
+            'N': int(total)}
+    return out, meta
+
+
 ##関数パート終了
 
 st.markdown('<div style="text-align: left; color:black; font-size:36px; font-weight: bold;">Data visualization for the treatment of positional head deformities</div>', unsafe_allow_html=True)
@@ -1476,40 +1547,76 @@ for parameter in parameters:
   hist(parameter)
   st.markdown("---")
 
-# ==== 形状割合セクション ====
-st.markdown("---")
-st.markdown('<div style="text-align: left; color:black; font-size:24px; font-weight: bold;">Proportions of plagiocephaly / brachycephaly / dolichocephaly (at first visit)</div>', unsafe_allow_html=True)
+  # ==== 形状割合セクション ====
+  st.markdown("---")
+  st.markdown('<div style="text-align: left; color:black; font-size:24px; font-weight: bold;">Proportions of plagiocephaly / brachycephaly / dolichocephaly (at first visit)</div>', unsafe_allow_html=True)
+  
+  col1, col2, col3 = st.columns(3)
+  with col1:
+      plagio_metric = st.selectbox('Plagio metric', ['CVAI','CA'], index=0)
+  with col2:
+      # 既定はMild以上
+      p_levels = ['mild','moderate','severe','very severe']
+      plagio_threshold = st.selectbox('Threshold (plagio)', p_levels, index=0)
+  with col3:
+      # CIでの短頭・長頭判定を既定True（既存の可視化と整合）
+      use_CI = st.selectbox('Head shape basis', ['CI','BI'], index=0) == 'CI'
+  
+  shape_df, shape_meta = compute_shape_proportions(df_first, plagio_metric=plagio_metric,
+                                                   plagio_threshold=plagio_threshold,
+                                                   use_CI=use_CI)
+  
+  # 表示（表＋円グラフ）
+  st.dataframe(shape_df, use_container_width=True)
+  
+  fig_shape = px.pie(shape_df, names='Category', values='Count',
+                     title=f"Head-shape distribution (N={shape_meta['N']})",
+                     hole=0.35)
+  st.plotly_chart(fig_shape, use_container_width=True)
+  
+  st.caption(f"Plagio rule: {shape_meta['plagio_rule']} / Head-shape rule: {shape_meta['head_shape_rule']}")
 
-col1, col2, col3 = st.columns(3)
-with col1:
-    plagio_metric = st.selectbox('Plagio metric', ['CVAI','CA'], index=0)
-with col2:
-    # 既定はMild以上
-    p_levels = ['mild','moderate','severe','very severe']
-    plagio_threshold = st.selectbox('Threshold (plagio)', p_levels, index=0)
-with col3:
-    # CIでの短頭・長頭判定を既定True（既存の可視化と整合）
-    use_CI = st.selectbox('Head shape basis', ['CI','BI'], index=0) == 'CI'
+  # ==== 形状割合セクション ====
+  st.markdown("---")
+  st.markdown(
+      '<div style="text-align: left; color:black; font-size:24px; font-weight: bold;">'
+      'Proportions of head-shape categories (6 classes, at first visit)'
+      '</div>', unsafe_allow_html=True
+  )
+  
+  col1, col2, col3 = st.columns(3)
+  with col1:
+      plagio_metric = st.selectbox('Plagio metric', ['CVAI','CA'], index=0)
+  with col2:
+      p_levels = ['mild','moderate','severe','very severe']  # 既定はMild以上
+      plagio_threshold = st.selectbox('Threshold (plagio)', p_levels, index=0)
+  with col3:
+      use_CI = st.selectbox('Head shape basis', ['CI','BI'], index=0) == 'CI'  # 既定: CI
+  
+  shape6_df, shape_meta = compute_shape_proportions6(
+      df_first,
+      plagio_metric=plagio_metric,
+      plagio_threshold=plagio_threshold,
+      use_CI=use_CI
+  )
+  
+  # 円グラフ（カテゴリの順序は関数内 order に準拠）
+  fig_shape = px.pie(
+      shape6_df, names='Category', values='Count',
+      title=f"Head-shape mix (N={shape_meta['N']}) — {shape_meta['plagio_rule']}, {shape_meta['head_shape_rule']}"
+  )
+  fig_shape.update_layout(width=900, height=600)
+  st.plotly_chart(fig_shape)
+  
+  # 表（人数と割合）
+  st.dataframe(shape6_df)
 
-shape_df, shape_meta = compute_shape_proportions(df_first, plagio_metric=plagio_metric,
-                                                 plagio_threshold=plagio_threshold,
-                                                 use_CI=use_CI)
-
-# 表示（表＋円グラフ）
-st.dataframe(shape_df, use_container_width=True)
-
-fig_shape = px.pie(shape_df, names='Category', values='Count',
-                   title=f"Head-shape distribution (N={shape_meta['N']})",
-                   hole=0.35)
-st.plotly_chart(fig_shape, use_container_width=True)
-
-st.caption(f"Plagio rule: {shape_meta['plagio_rule']} / Head-shape rule: {shape_meta['head_shape_rule']}")
-
-show_helmet_proportion()
-st.markdown("---")
-
-st.markdown('<div style="text-align: left; color:black; font-size:24px; font-weight: bold;">Changes before and after treatment by age and severity</div>', unsafe_allow_html=True)
-st.write('The graphs and tables below are for all helmets combined.')
+  
+  show_helmet_proportion()
+  st.markdown("---")
+  
+  st.markdown('<div style="text-align: left; color:black; font-size:24px; font-weight: bold;">Changes before and after treatment by age and severity</div>', unsafe_allow_html=True)
+  st.write('The graphs and tables below are for all helmets combined.')
 
 table_members = df_tx_pre_post[df_tx_pre_post['治療期間'] > 1]['ダミーID'].unique()
 df_table = df_tx_pre_post[df_tx_pre_post['ダミーID'].isin(table_members)]
